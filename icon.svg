@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="115" fill="#E63946"/>
+  <!-- Body -->
+  <circle cx="256" cy="120" r="42" fill="white"/>
+  <!-- Torso -->
+  <path d="M200 210 Q220 175 256 170 Q292 175 312 210 L330 290 L280 290 L265 240 L250 290 L200 290 Z" fill="white"/>
+  <!-- Left arm -->
+  <path d="M200 210 L150 270 L168 285 L218 235" fill="white"/>
+  <!-- Right arm -->
+  <path d="M312 210 L362 270 L344 285 L294 235" fill="white"/>
+  <!-- Left leg -->
+  <path d="M210 285 L185 390 L215 390 L255 300 Z" fill="white"/>
+  <!-- Right leg -->
+  <path d="M280 285 L305 390 L335 390 L270 300 Z" fill="white"/>
+</svg>
