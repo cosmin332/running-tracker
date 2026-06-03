@@ -2,7 +2,7 @@
   "name": "RunTrack",
   "short_name": "RunTrack",
   "description": "Suivi de séances de running",
-  "start_url": ".",
+  "start_url": "/running-tracker/",
   "display": "standalone",
   "background_color": "#F3F4F6",
   "theme_color": "#E63946",
