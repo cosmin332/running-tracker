@@ -413,6 +413,11 @@
         <p style="font-size:11px;color:var(--text-2);text-align:center;margin-top:8px">Identifiants stockés uniquement sur cet appareil.</p>
       </div>
     </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Plan d'entraînement</div>
+      <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.5">Charge les <strong>23 séances Sub-50</strong> préprogrammées sur 8 semaines (lun/mer/sam dès le 9 juin).</p>
+      <button class="btn btn-primary" onclick="loadPlan()">🗓 Charger le plan Sub-50</button>
+    </div>
     <button class="btn btn-ghost" onclick="closeModal('modal-settings')">Fermer</button>
   </div>
 </div>
@@ -1139,6 +1144,212 @@ function updateSettingsModal(){
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});});
+
+// ═══════════════════════════════════════════════════════
+//  PLAN SUB-50
+// ═══════════════════════════════════════════════════════
+const PLAN_SUB50 = {
+  goals:[{id:"goal_sub50",type:"performance",title:"10 km en moins de 50 minutes",targetDist:10,targetTime:50,freqN:null,freqP:"week",evName:null,evDate:null,evDist:null,desc:null,createdAt:"2026-06-03T00:00:00.000Z"}],
+  workouts:[
+    // ── SEMAINE 1 ──
+    {id:"w1s1",goalId:"goal_sub50",title:"Footing Cadence",plannedDate:"2026-06-09",
+     segments:[
+       {id:"w1s1a",type:"warmup",label:"Skipping 2×30s — réveille les pieds",distance:"",duration:"2",pace:""},
+       {id:"w1s1b",type:"main",label:"EF continu — 158 BPM 5 min au milieu",distance:"",duration:"45",pace:"6:37"}],
+     notes:"Au milieu de la séance, active ton métronome ou playlist à 158 BPM pendant 5 min pour caler tes pieds. EF = 6:30 à 6:45/km.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w1s2",goalId:"goal_sub50",title:"Seuil Court — 3×1 000m",plannedDate:"2026-06-11",
+     segments:[
+       {id:"w1s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w1s2b",type:"main",label:"1 000m #1 — Allure Seuil",distance:"1",duration:"",pace:"5:17"},
+       {id:"w1s2c",type:"main",label:"Récupération marche",distance:"",duration:"2",pace:""},
+       {id:"w1s2d",type:"main",label:"1 000m #2 — Allure Seuil",distance:"1",duration:"",pace:"5:17"},
+       {id:"w1s2e",type:"main",label:"Récupération marche",distance:"",duration:"2",pace:""},
+       {id:"w1s2f",type:"main",label:"1 000m #3 — Allure Seuil",distance:"1",duration:"",pace:"5:17"},
+       {id:"w1s2g",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Seuil = 5:15 à 5:20/km, effort difficile mais tenable. Récup: 2 min en marchant entre les blocs.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w1s3",goalId:"goal_sub50",title:"Sortie Plaisir",plannedDate:"2026-06-14",
+     segments:[
+       {id:"w1s3a",type:"main",label:"EF pure — sans regarder la vitesse",distance:"",duration:"60",pace:"6:37"}],
+     notes:"1h00 en EF pure. Pas de montre, juste profite.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 2 ──
+    {id:"w2s1",goalId:"goal_sub50",title:"Footing Cadence",plannedDate:"2026-06-16",
+     segments:[
+       {id:"w2s1a",type:"warmup",label:"Skipping 2×30s — réveille les pieds",distance:"",duration:"2",pace:""},
+       {id:"w2s1b",type:"main",label:"EF — 5min 158 BPM / 5min libre / 5min 158 BPM",distance:"",duration:"45",pace:"6:37"}],
+     notes:"2 blocs de 5 min à 158 BPM avec 5 min libres entre les deux.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w2s2",goalId:"goal_sub50",title:"VMA — 8×400m",plannedDate:"2026-06-18",
+     segments:[
+       {id:"w2s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w2s2b",type:"main",label:"8×400m — Allure VMA · Récup 1min trot lent entre chaque",distance:"3.2",duration:"",pace:"4:32"},
+       {id:"w2s2c",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"VMA = 4:30 à 4:35/km. Récup: 1 min en trottinant très lentement entre chaque 400m.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w2s3",goalId:"goal_sub50",title:"Sortie Rythme",plannedDate:"2026-06-21",
+     segments:[
+       {id:"w2s3a",type:"warmup",label:"Skipping 2×30s",distance:"",duration:"2",pace:""},
+       {id:"w2s3b",type:"main",label:"EF continu",distance:"",duration:"40",pace:"6:37"},
+       {id:"w2s3c",type:"main",label:"Accélération finale — Allure Seuil",distance:"",duration:"10",pace:"5:17"}],
+     notes:"50 min total: 40 min EF puis les 10 dernières min à Allure Seuil (5:15-5:20) pour habituer le corps à accélérer sur la fatigue.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 3 ──
+    {id:"w3s1",goalId:"goal_sub50",title:"Footing Cadence",plannedDate:"2026-06-23",
+     segments:[
+       {id:"w3s1a",type:"warmup",label:"Skipping 2×30s",distance:"",duration:"2",pace:""},
+       {id:"w3s1b",type:"main",label:"EF — 2 blocs de 5min à 160 BPM (récup 5min libre entre)",distance:"",duration:"50",pace:"6:37"}],
+     notes:"2 blocs de 5 min calés à 160 BPM, récupération 5 min libre entre les deux.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w3s2",goalId:"goal_sub50",title:"Seuil Moyen — 3×1 500m",plannedDate:"2026-06-25",
+     segments:[
+       {id:"w3s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w3s2b",type:"main",label:"1 500m #1 — Allure Seuil",distance:"1.5",duration:"",pace:"5:17"},
+       {id:"w3s2c",type:"main",label:"Récupération marche",distance:"",duration:"3",pace:""},
+       {id:"w3s2d",type:"main",label:"1 500m #2 — Allure Seuil",distance:"1.5",duration:"",pace:"5:17"},
+       {id:"w3s2e",type:"main",label:"Récupération marche",distance:"",duration:"3",pace:""},
+       {id:"w3s2f",type:"main",label:"1 500m #3 — Allure Seuil",distance:"1.5",duration:"",pace:"5:17"},
+       {id:"w3s2g",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Seuil = 5:15 à 5:20/km. Récupération 2min30 en marchant entre les blocs.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w3s3",goalId:"goal_sub50",title:"Sortie Longue",plannedDate:"2026-06-28",
+     segments:[
+       {id:"w3s3a",type:"main",label:"EF pure",distance:"",duration:"70",pace:"6:37"}],
+     notes:"1h10 en EF pure.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 4 — Assimilation ──
+    {id:"w4s1",goalId:"goal_sub50",title:"Footing Cadence — Assimilation",plannedDate:"2026-06-30",
+     segments:[
+       {id:"w4s1a",type:"warmup",label:"Skipping 2×30s",distance:"",duration:"2",pace:""},
+       {id:"w4s1b",type:"main",label:"160 BPM en continu",distance:"",duration:"15",pace:"6:37"},
+       {id:"w4s1c",type:"main",label:"EF libre",distance:"",duration:"23",pace:"6:37"}],
+     notes:"Semaine d'assimilation — plus légère. Les 15 premières minutes calées en continu à 160 BPM.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w4s2",goalId:"goal_sub50",title:"Rappel de Vitesse — 6×200m",plannedDate:"2026-07-02",
+     segments:[
+       {id:"w4s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w4s2b",type:"main",label:"6×200m — Allure VMA (sans forcer) · Récup 1min marche",distance:"1.2",duration:"",pace:"4:32"},
+       {id:"w4s2c",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Pas de 3ème séance cette semaine — laisse ton corps intégrer le premier mois. Récup: 1 min marchée entre les blocs.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 5 ──
+    {id:"w5s1",goalId:"goal_sub50",title:"Footing + Explosivité",plannedDate:"2026-07-07",
+     segments:[
+       {id:"w5s1a",type:"main",label:"EF continu",distance:"",duration:"45",pace:"6:37"},
+       {id:"w5s1b",type:"cooldown",label:"4×80m accélérations progressives — sur pelouse",distance:"0.32",duration:"",pace:""}],
+     notes:"Bloc 2 — À la fin: 4 accélérations progressives de 80m sur pelouse pour l'explosivité des pieds.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w5s2",goalId:"goal_sub50",title:"Test AS10 — 3×2 000m ⭐",plannedDate:"2026-07-09",
+     segments:[
+       {id:"w5s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w5s2b",type:"main",label:"2 000m #1 — Allure AS10",distance:"2",duration:"",pace:"4:57"},
+       {id:"w5s2c",type:"main",label:"Récupération marche + eau",distance:"",duration:"2",pace:""},
+       {id:"w5s2d",type:"main",label:"2 000m #2 — Allure AS10",distance:"2",duration:"",pace:"4:57"},
+       {id:"w5s2e",type:"main",label:"Récupération marche + eau",distance:"",duration:"2",pace:""},
+       {id:"w5s2f",type:"main",label:"2 000m #3 — Allure AS10",distance:"2",duration:"",pace:"4:57"},
+       {id:"w5s2g",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Séance clé ! AS10 = 4:55 à 4:59/km. C'est ici que tu calibres ton allure de course. Récup: 2 min marche + eau entre les blocs.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w5s3",goalId:"goal_sub50",title:"Sortie Longue",plannedDate:"2026-07-12",
+     segments:[
+       {id:"w5s3a",type:"main",label:"EF pure",distance:"",duration:"75",pace:"6:37"}],
+     notes:"1h15 en EF.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 6 ──
+    {id:"w6s1",goalId:"goal_sub50",title:"Footing + Lignes Droites",plannedDate:"2026-07-14",
+     segments:[
+       {id:"w6s1a",type:"main",label:"EF continu",distance:"",duration:"50",pace:"6:37"},
+       {id:"w6s1b",type:"cooldown",label:"4 lignes droites rapides",distance:"0.3",duration:"",pace:""}],
+     notes:"À la fin: 4 lignes droites rapides pour l'explosivité.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w6s2",goalId:"goal_sub50",title:"VMA Longue — 5×800m",plannedDate:"2026-07-16",
+     segments:[
+       {id:"w6s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w6s2b",type:"main",label:"5×800m — Allure VMA · Récup 1min30 trot très lent",distance:"4",duration:"",pace:"4:32"},
+       {id:"w6s2c",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"VMA = 4:30 à 4:35/km. Récupération 1min30 en trottinant très lentement entre les blocs.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w6s3",goalId:"goal_sub50",title:"Seuil Évolutif — 4 000m continu",plannedDate:"2026-07-19",
+     segments:[
+       {id:"w6s3a",type:"warmup",label:"Échauffement EF",distance:"",duration:"20",pace:"6:37"},
+       {id:"w6s3b",type:"main",label:"4 000m continu — Allure Seuil",distance:"4",duration:"",pace:"5:17"},
+       {id:"w6s3c",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"4 000m en continu à Allure Seuil (5:15-5:20). Plus long que les séances précédentes — tiens la cadence !",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 7 — Pic de charge ──
+    {id:"w7s1",goalId:"goal_sub50",title:"Footing EF",plannedDate:"2026-07-21",
+     segments:[
+       {id:"w7s1a",type:"main",label:"EF continu",distance:"",duration:"45",pace:"6:37"}],
+     notes:"Semaine 7 — Pic de charge. Garde tes forces pour mercredi.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w7s2",goalId:"goal_sub50",title:"Le Monstre AS10 — 3 000/2 000/1 000m 🔥",plannedDate:"2026-07-23",
+     segments:[
+       {id:"w7s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w7s2b",type:"main",label:"3 000m — Allure AS10",distance:"3",duration:"",pace:"4:57"},
+       {id:"w7s2c",type:"main",label:"Récupération marche",distance:"",duration:"3",pace:""},
+       {id:"w7s2d",type:"main",label:"2 000m — Allure AS10",distance:"2",duration:"",pace:"4:57"},
+       {id:"w7s2e",type:"main",label:"Récupération marche",distance:"",duration:"2",pace:""},
+       {id:"w7s2f",type:"main",label:"1 000m — Allure AS10",distance:"1",duration:"",pace:"4:57"},
+       {id:"w7s2g",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Si tu passes cette séance, les 50 minutes sont dans la poche ! AS10 = 4:55 à 4:59/km.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w7s3",goalId:"goal_sub50",title:"Sortie Longue",plannedDate:"2026-07-26",
+     segments:[
+       {id:"w7s3a",type:"main",label:"EF pure",distance:"",duration:"60",pace:"6:37"}],
+     notes:"1h00 en EF pure.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    // ── SEMAINE 8 — Affûtage ──
+    {id:"w8s1",goalId:"goal_sub50",title:"Footing Léger + Lignes Droites",plannedDate:"2026-07-28",
+     segments:[
+       {id:"w8s1a",type:"main",label:"Footing léger EF",distance:"",duration:"30",pace:"6:37"},
+       {id:"w8s1b",type:"cooldown",label:"3×80m lignes droites",distance:"0.24",duration:"",pace:""}],
+     notes:"Affûtage — relâche la pression. Dernière séance de renforcement légère aujourd'hui.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w8s2",goalId:"goal_sub50",title:"Rappel d'Allure AS10",plannedDate:"2026-07-30",
+     segments:[
+       {id:"w8s2a",type:"warmup",label:"Échauffement EF",distance:"",duration:"15",pace:"6:37"},
+       {id:"w8s2b",type:"main",label:"1 500m — Allure AS10",distance:"1.5",duration:"",pace:"4:57"},
+       {id:"w8s2c",type:"cooldown",label:"Retour au calme EF",distance:"",duration:"5",pace:"6:37"}],
+     notes:"Mémoriser le rythme une dernière fois. Légère — garder les jambes fraîches pour dimanche.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+
+    {id:"w8s3",goalId:"goal_sub50",title:"🏆 LE 10 KM — JOUR J !",plannedDate:"2026-08-02",
+     segments:[
+       {id:"w8s3a",type:"warmup",label:"Échauffement avant course",distance:"",duration:"15",pace:"6:37"},
+       {id:"w8s3b",type:"main",label:"10 KM COURSE — Allure AS10 · Sub-50 min !",distance:"10",duration:"",pace:"4:57"}],
+     notes:"C'est le grand jour ! Vise le Sub-50. Allure cible : 4:55 à 4:59/km. Confiance — tu as fait tout le travail.",
+     completed:false,completedAt:null,stravaId:null,stravaName:null,actualDist:null,actualDur:null,actualPace:null,createdAt:"2026-06-03T00:00:00.000Z"},
+  ]
+};
+
+function loadPlan(){
+  if((db.goals.length||db.workouts.length)&&!confirm('Charger le plan Sub-50 remplacera toutes tes données actuelles. Continuer ?'))return;
+  db.goals=JSON.parse(JSON.stringify(PLAN_SUB50.goals));
+  db.workouts=JSON.parse(JSON.stringify(PLAN_SUB50.workouts));
+  save();closeModal('modal-settings');showView('goals');
+}
 
 // SW
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
