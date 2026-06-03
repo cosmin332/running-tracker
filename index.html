@@ -12,782 +12,250 @@
   <link rel="apple-touch-icon" href="icon.svg">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --primary: #E63946;
-      --primary-light: #fff1f2;
-      --success: #16A34A;
-      --success-light: #dcfce7;
-      --strava: #FC4C02;
-      --strava-light: #fff4ef;
-      --text: #111827;
-      --text-2: #6B7280;
-      --bg: #F3F4F6;
-      --card: #FFFFFF;
-      --border: #E5E7EB;
-      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-      --r: 14px;
-      --header-h: 56px;
-      --nav-h: 58px;
+      --primary: #E63946; --primary-light: #fff1f2;
+      --success: #16A34A; --success-light: #dcfce7;
+      --warmup: #F97316; --warmup-light: #fff7ed;
+      --cooldown: #0EA5E9; --cooldown-light: #f0f9ff;
+      --strava: #FC4C02; --strava-light: #fff4ef;
+      --text: #111827; --text-2: #6B7280;
+      --bg: #F3F4F6; --card: #fff; --border: #E5E7EB;
+      --shadow: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+      --r: 14px; --nav-h: 58px;
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-tap-highlight-color: transparent;
-      overscroll-behavior: none;
-    }
-
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-      max-width: 430px;
-      margin: 0 auto;
-      background: var(--bg);
-    }
-
-    /* ── Header ─────────────────────────────────────── */
-    #app-header {
-      flex-shrink: 0;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
-      z-index: 10;
-    }
-
-    #header-back {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 22px;
-      color: var(--primary);
-      padding: 4px 8px 4px 0;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    #header-title {
-      flex: 1;
-      font-size: 18px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    #header-logo { font-size: 22px; line-height: 1; }
-
-    #header-edit-btn {
-      display: none;
-      background: none;
-      border: none;
-      color: var(--primary);
-      font-size: 14px;
-      font-weight: 600;
-      padding: 6px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #header-settings {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 8px;
-      color: var(--text-2);
-      line-height: 1;
-      position: relative;
-    }
-
-    #settings-dot {
-      display: none;
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
-      background: var(--strava);
-    }
-
-    /* ── Content ─────────────────────────────────────── */
-    #content {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .view { display: none; padding: 16px 16px 80px; }
-    .view.active { display: block; }
-
-    /* ── Bottom Nav ──────────────────────────────────── */
-    #bottom-nav {
-      flex-shrink: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    .nav-tab {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 8px 0 6px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-2);
-      font-size: 11px;
-      font-weight: 500;
-      transition: color .15s;
-      position: relative;
-    }
-
-    .nav-tab.active { color: var(--primary); }
-    .nav-tab .icon { font-size: 22px; line-height: 1; }
-
-    .nav-badge {
-      position: absolute;
-      top: 4px;
-      right: calc(50% - 18px);
-      background: var(--strava);
-      color: white;
-      font-size: 9px;
-      font-weight: 800;
-      min-width: 16px;
-      height: 16px;
-      border-radius: 8px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-    }
-
-    /* ── FAB ─────────────────────────────────────────── */
-    #fab {
-      position: fixed;
-      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--nav-h) + 14px);
-      right: max(16px, calc(50vw - 215px + 16px));
-      width: 54px;
-      height: 54px;
-      border-radius: 27px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      font-size: 28px;
-      line-height: 54px;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(230,57,70,.45);
-      z-index: 9;
-      transition: transform .12s;
-    }
-
-    #fab:active { transform: scale(.92); }
-
-    /* ── Cards ───────────────────────────────────────── */
-    .card {
-      background: var(--card);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .card-tap { cursor: pointer; transition: transform .1s; }
-    .card-tap:active { transform: scale(.98); }
-
-    /* ── Section header ──────────────────────────────── */
-    .sec-hdr {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 0 12px;
-    }
-
-    .sec-title { font-size: 17px; font-weight: 700; }
-    .sec-count { font-size: 13px; color: var(--text-2); }
-
-    /* ── Goal card ───────────────────────────────────── */
-    .goal-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .goal-icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      flex-shrink: 0;
-    }
-
-    .ic-performance { background: #FEF3C7; }
-    .ic-frequency   { background: #EDE9FE; }
-    .ic-event       { background: #DBEAFE; }
-    .ic-free        { background: #D1FAE5; }
-
-    .goal-meta { flex: 1; min-width: 0; }
-    .goal-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .goal-sub  { font-size: 13px; color: var(--text-2); }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-
-    .bd-performance { background: #FEF3C7; color: #92400E; }
-    .bd-frequency   { background: #EDE9FE; color: #5B21B6; }
-    .bd-event       { background: #DBEAFE; color: #1E40AF; }
-    .bd-free        { background: #D1FAE5; color: #065F46; }
-
-    /* ── Progress bar ────────────────────────────────── */
-    .prog-track {
-      width: 100%;
-      height: 8px;
-      background: var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 8px 0 4px;
-    }
-
-    .prog-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--primary);
-      transition: width .5s ease;
-    }
-
-    .prog-fill.done { background: var(--success); }
-
-    .prog-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-2);
-    }
-
-    .achieved {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--success-light);
-      color: #065F46;
-      padding: 5px 11px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-
-    /* ── Session card ────────────────────────────────── */
-    .sess-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .date-badge {
-      background: var(--primary);
-      color: #fff;
-      border-radius: 10px;
-      padding: 8px 6px;
-      text-align: center;
-      min-width: 42px;
-      flex-shrink: 0;
-    }
-
-    .date-badge.strava-date { background: var(--strava); }
-
-    .date-badge .db-day { font-size: 20px; font-weight: 800; line-height: 1; }
-    .date-badge .db-mo  { font-size: 10px; font-weight: 600; text-transform: uppercase; }
-
-    .sess-info { flex: 1; min-width: 0; }
-    .sess-loc { font-size: 15px; font-weight: 600; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .chips { display: flex; gap: 10px; flex-wrap: wrap; }
-    .chip { display: flex; align-items: center; gap: 3px; font-size: 13px; color: var(--text-2); }
-    .chip strong { color: var(--text); font-weight: 600; }
-
-    .sess-note { font-size: 13px; color: var(--text-2); font-style: italic; margin-top: 6px; }
-
-    .card-footer {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn-danger  { background: #fee2e2; color: #dc2626; }
-    .btn-neutral { background: var(--border); color: var(--text-2); }
-    .btn-strava-sm { background: var(--strava-light); color: var(--strava); }
-
-    /* ── Strava pending section ──────────────────────── */
-    .strava-section-hdr {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .strava-logo {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      background: var(--strava);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
-    .strava-section-title { font-size: 15px; font-weight: 700; }
-
-    .strava-pending-count {
-      background: var(--strava);
-      color: white;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 10px;
-    }
-
-    .strava-card {
-      background: var(--card);
-      border: 2px solid var(--strava);
-      border-radius: var(--r);
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-
-    .strava-link-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .strava-goal-sel {
-      flex: 1;
-      min-width: 120px;
-      padding: 8px 10px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: inherit;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-appearance: none;
-      appearance: none;
-      cursor: pointer;
-    }
-
-    /* ── Stats ───────────────────────────────────────── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border-radius: var(--r);
-      padding: 14px;
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-
-    .stat-card .val   { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 3px; }
-    .stat-card .lbl   { font-size: 12px; color: var(--text-2); font-weight: 500; }
-
-    /* ── Bar chart ───────────────────────────────────── */
-    .chart-wrap {
-      background: var(--card);
-      border-radius: var(--r);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-    }
-
-    .chart-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
-
-    .bar-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 6px;
-      height: 90px;
-    }
-
-    .bar-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      height: 100%;
-      gap: 3px;
-    }
-
-    .bar-val  { font-size: 9px; font-weight: 600; color: var(--primary); }
-    .bar-rect { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
-    .bar-lbl  { font-size: 10px; color: var(--text-2); white-space: nowrap; }
-
-    /* ── Empty state ─────────────────────────────────── */
-    .empty {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text-2);
-    }
-
-    .empty .em { font-size: 52px; margin-bottom: 14px; }
-    .empty h3  { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .empty p   { font-size: 14px; line-height: 1.5; }
-
-    /* ── Forms ───────────────────────────────────────── */
-    .fgrp { margin-bottom: 18px; }
-
-    .flbl {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 7px;
-    }
-
-    .finp, .fsel, .ftxt {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 16px;
-      font-family: inherit;
-      color: var(--text);
-      background: var(--card);
-      -webkit-appearance: none;
-      appearance: none;
-      transition: border-color .15s;
-    }
-
-    .finp:focus, .fsel:focus, .ftxt:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .ftxt { resize: vertical; min-height: 90px; }
-
-    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .fhint { font-size: 12px; color: var(--text-2); margin-top: 4px; }
-
-    .pace-box {
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 16px;
-      color: var(--text-2);
-      font-style: italic;
-      background: var(--bg);
-    }
-
-    /* ── Type selector ───────────────────────────────── */
-    .type-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .type-opt {
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 10px;
-      cursor: pointer;
-      text-align: center;
-      background: var(--card);
-      transition: border-color .15s, background .15s;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .type-opt.sel { border-color: var(--primary); background: var(--primary-light); }
-    .type-opt .ti { font-size: 28px; margin-bottom: 5px; }
-    .type-opt .tn { font-size: 13px; font-weight: 700; color: var(--text); }
-    .type-opt .td { font-size: 11px; color: var(--text-2); margin-top: 1px; }
-
-    .fsec { display: none; }
-    .fsec.on { display: block; }
-
-    /* ── Buttons ─────────────────────────────────────── */
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity .15s;
-      font-family: inherit;
-    }
-
-    .btn:active { opacity: .8; }
-    .btn-primary { background: var(--primary); color: #fff; margin-bottom: 10px; }
-    .btn-ghost   { background: var(--border); color: var(--text-2); }
-    .btn-strava  { background: var(--strava); color: #fff; margin-bottom: 10px; }
-
-    /* ── Modal ───────────────────────────────────────── */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      z-index: 200;
-      align-items: flex-end;
-      justify-content: center;
-    }
-
-    .overlay.open { display: flex; }
-
-    .modal {
-      background: var(--bg);
-      border-radius: 22px 22px 0 0;
-      width: 100%;
-      max-width: 430px;
-      max-height: 92dvh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
-    }
-
-    .modal-drag {
-      width: 40px;
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      margin: 14px auto 18px;
-    }
-
-    .modal-title {
-      font-size: 20px;
-      font-weight: 800;
-      text-align: center;
-      margin-bottom: 22px;
-    }
-
-    /* ── Goal detail ─────────────────────────────────── */
-    .detail-hero {
-      background: var(--card);
-      border-radius: var(--r);
-      padding: 20px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .detail-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      margin-bottom: 12px;
-    }
-
-    .detail-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-    .detail-sub  { font-size: 14px; color: var(--text-2); margin-bottom: 14px; }
-
-    .mini-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .mini-card {
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .mini-card .mv { font-size: 20px; font-weight: 800; color: var(--primary); }
-    .mini-card .ml { font-size: 11px; color: var(--text-2); }
-
-    /* ── Settings ────────────────────────────────────── */
-    .settings-section {
-      background: var(--card);
-      border-radius: var(--r);
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .settings-section-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--text-2);
-      margin-bottom: 14px;
-    }
-
-    .strava-connected-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .athlete-avatar {
-      width: 46px;
-      height: 46px;
-      border-radius: 23px;
-      background: var(--strava);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 800;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .athlete-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-    .athlete-info { flex: 1; min-width: 0; }
-    .athlete-name { font-size: 15px; font-weight: 700; }
-    .athlete-sub  { font-size: 12px; color: var(--text-2); }
-
-    .strava-status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
-      background: var(--success);
-      display: inline-block;
-      margin-right: 5px;
-    }
-
-    .sync-info {
-      font-size: 12px;
-      color: var(--text-2);
-      margin-bottom: 12px;
-    }
-
-    /* ── Spinner ─────────────────────────────────────── */
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,.4);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Animations ──────────────────────────────────── */
-    .view { animation: fadein .18s ease; }
-    @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); -webkit-tap-highlight-color:transparent; overscroll-behavior:none; }
+    #app { display:flex; flex-direction:column; height:100dvh; max-width:430px; margin:0 auto; background:var(--bg); }
+
+    /* Header */
+    #app-header { flex-shrink:0; background:var(--card); border-bottom:1px solid var(--border); padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px; display:flex; align-items:center; gap:10px; z-index:10; }
+    #header-back { display:none; background:none; border:none; font-size:22px; color:var(--primary); padding:4px 8px 4px 0; cursor:pointer; }
+    #header-title { flex:1; font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #header-logo { font-size:22px; line-height:1; }
+    #header-edit-btn { display:none; background:none; border:none; color:var(--primary); font-size:14px; font-weight:600; padding:6px 10px; border-radius:8px; cursor:pointer; }
+    #header-settings { background:none; border:none; font-size:20px; cursor:pointer; padding:6px; border-radius:8px; color:var(--text-2); line-height:1; position:relative; }
+    #settings-dot { display:none; position:absolute; top:4px; right:4px; width:8px; height:8px; border-radius:4px; background:var(--strava); }
+
+    /* Content */
+    #content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .view { display:none; padding:16px 16px 80px; animation:fadein .18s ease; }
+    .view.active { display:block; }
+    @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+    /* Bottom Nav */
+    #bottom-nav { flex-shrink:0; background:var(--card); border-top:1px solid var(--border); display:flex; padding-bottom:env(safe-area-inset-bottom,0px); }
+    .nav-tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 0 6px; background:none; border:none; cursor:pointer; color:var(--text-2); font-size:11px; font-weight:500; position:relative; }
+    .nav-tab.active { color:var(--primary); }
+    .nav-tab .icon { font-size:22px; line-height:1; }
+    .nav-badge { position:absolute; top:4px; right:calc(50% - 18px); background:var(--strava); color:#fff; font-size:9px; font-weight:800; min-width:16px; height:16px; border-radius:8px; display:none; align-items:center; justify-content:center; padding:0 4px; }
+
+    /* FAB */
+    #fab { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + var(--nav-h) + 14px); right:max(16px,calc(50vw - 215px + 16px)); width:54px; height:54px; border-radius:27px; background:var(--primary); color:#fff; border:none; font-size:28px; line-height:54px; text-align:center; cursor:pointer; box-shadow:0 4px 14px rgba(230,57,70,.45); z-index:9; transition:transform .12s; }
+    #fab:active { transform:scale(.92); }
+
+    /* Cards */
+    .card { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); padding:16px; margin-bottom:12px; }
+    .card-tap { cursor:pointer; transition:transform .1s; }
+    .card-tap:active { transform:scale(.98); }
+
+    /* Section headers */
+    .sec-hdr { display:flex; align-items:center; justify-content:space-between; margin:0 0 12px; }
+    .sec-title { font-size:17px; font-weight:700; }
+    .sec-count { font-size:13px; color:var(--text-2); }
+
+    /* Week divider */
+    .week-divider { font-size:13px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin:20px 0 8px; padding-left:2px; }
+    .week-divider:first-child { margin-top:0; }
+
+    /* Goal card */
+    .goal-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .goal-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+    .ic-performance{background:#FEF3C7} .ic-frequency{background:#EDE9FE} .ic-event{background:#DBEAFE} .ic-free{background:#D1FAE5}
+    .goal-meta { flex:1; min-width:0; }
+    .goal-name { font-size:15px; font-weight:700; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .goal-sub  { font-size:13px; color:var(--text-2); }
+    .badge { font-size:11px; font-weight:600; padding:3px 8px; border-radius:20px; white-space:nowrap; }
+    .bd-performance{background:#FEF3C7;color:#92400E} .bd-frequency{background:#EDE9FE;color:#5B21B6} .bd-event{background:#DBEAFE;color:#1E40AF} .bd-free{background:#D1FAE5;color:#065F46}
+
+    /* Progress */
+    .prog-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin:8px 0 4px; }
+    .prog-fill { height:100%; border-radius:4px; background:var(--primary); transition:width .5s ease; }
+    .prog-fill.done { background:var(--success); }
+    .prog-labels { display:flex; justify-content:space-between; font-size:12px; color:var(--text-2); }
+    .achieved { display:inline-flex; align-items:center; gap:5px; background:var(--success-light); color:#065F46; padding:5px 11px; border-radius:20px; font-size:13px; font-weight:700; margin-top:8px; }
+
+    /* Workout card */
+    .workout-card { display:flex; gap:12px; align-items:flex-start; }
+    .check-circle { width:28px; height:28px; border-radius:14px; border:2px solid var(--border); background:none; cursor:pointer; flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; transition:all .15s; -webkit-appearance:none; }
+    .check-circle:active { transform:scale(.9); }
+    .check-circle.done { background:var(--success); border-color:var(--success); }
+    .check-circle .check-icon { display:none; color:#fff; font-size:14px; font-weight:800; }
+    .check-circle.done .check-icon { display:block; }
+
+    .workout-info { flex:1; min-width:0; }
+    .workout-title { font-size:15px; font-weight:700; margin-bottom:4px; }
+    .workout-date-line { font-size:12px; color:var(--text-2); margin-bottom:8px; }
+    .workout-date-line.past { color:var(--success); font-weight:600; }
+
+    /* Segments */
+    .segs { display:flex; flex-direction:column; gap:4px; margin-bottom:6px; }
+    .seg { display:flex; align-items:center; gap:6px; font-size:13px; padding:5px 8px; border-radius:8px; }
+    .seg-warmup  { background:var(--warmup-light);  color:#c2410c; }
+    .seg-main    { background:var(--primary-light);  color:#be123c; }
+    .seg-cooldown{ background:var(--cooldown-light); color:#0369a1; }
+    .seg-icon { font-size:14px; flex-shrink:0; }
+    .seg-label { font-weight:600; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .seg-dur  { font-weight:700; white-space:nowrap; }
+    .seg-pace { color:var(--text-2); white-space:nowrap; }
+
+    .workout-strava-tag { display:inline-flex; align-items:center; gap:4px; background:var(--strava-light); color:var(--strava); font-size:11px; font-weight:700; padding:3px 8px; border-radius:10px; margin-top:4px; }
+    .workout-actual-stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+    .wstat { font-size:12px; color:var(--text-2); }
+    .wstat strong { color:var(--text); font-weight:700; }
+
+    .card-footer { display:flex; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); flex-wrap:wrap; }
+    .btn-sm { padding:6px 12px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+    .btn-danger  { background:#fee2e2; color:#dc2626; }
+    .btn-neutral { background:var(--border); color:var(--text-2); }
+    .btn-success { background:var(--success-light); color:var(--success); }
+    .btn-strava-sm { background:var(--strava-light); color:var(--strava); }
+
+    /* Stats */
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+    .stat-card { background:var(--card); border-radius:var(--r); padding:14px; box-shadow:var(--shadow); text-align:center; }
+    .stat-card .val { font-size:26px; font-weight:800; color:var(--primary); line-height:1; margin-bottom:3px; }
+    .stat-card .lbl { font-size:12px; color:var(--text-2); font-weight:500; }
+    .chart-wrap { background:var(--card); border-radius:var(--r); padding:16px; box-shadow:var(--shadow); margin-bottom:12px; }
+    .chart-title { font-size:15px; font-weight:700; margin-bottom:14px; }
+    .bar-chart { display:flex; align-items:flex-end; gap:6px; height:90px; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:3px; }
+    .bar-val { font-size:9px; font-weight:600; color:var(--primary); }
+    .bar-rect { width:100%; border-radius:4px 4px 0 0; min-height:3px; }
+    .bar-lbl { font-size:10px; color:var(--text-2); white-space:nowrap; }
+
+    /* Detail hero */
+    .detail-hero { background:var(--card); border-radius:var(--r); padding:20px; margin-bottom:14px; box-shadow:var(--shadow); }
+    .detail-icon { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:12px; }
+    .detail-name { font-size:22px; font-weight:800; margin-bottom:4px; }
+    .detail-sub  { font-size:14px; color:var(--text-2); margin-bottom:14px; }
+    .mini-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+    .mini-card { background:var(--bg); border-radius:10px; padding:10px; text-align:center; }
+    .mini-card .mv { font-size:20px; font-weight:800; color:var(--primary); }
+    .mini-card .ml { font-size:11px; color:var(--text-2); }
+
+    /* Empty */
+    .empty { text-align:center; padding:48px 24px; color:var(--text-2); }
+    .empty .em { font-size:52px; margin-bottom:14px; }
+    .empty h3 { font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px; }
+    .empty p  { font-size:14px; line-height:1.5; }
+
+    /* Strava pending */
+    .strava-section-hdr { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .strava-logo { width:26px; height:26px; border-radius:6px; background:var(--strava); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; flex-shrink:0; }
+    .strava-section-title { font-size:15px; font-weight:700; }
+    .strava-pending-count { background:var(--strava); color:#fff; font-size:11px; font-weight:800; padding:2px 7px; border-radius:10px; }
+    .strava-card { background:var(--card); border:2px solid var(--strava); border-radius:var(--r); padding:14px; margin-bottom:10px; }
+    .strava-link-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .strava-goal-sel { flex:1; min-width:120px; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; color:var(--text); background:var(--bg); -webkit-appearance:none; cursor:pointer; }
+
+    /* Forms */
+    .fgrp { margin-bottom:18px; }
+    .flbl { display:block; font-size:14px; font-weight:600; margin-bottom:7px; }
+    .finp,.fsel,.ftxt { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:16px; font-family:inherit; color:var(--text); background:var(--card); -webkit-appearance:none; appearance:none; transition:border-color .15s; }
+    .finp:focus,.fsel:focus,.ftxt:focus { outline:none; border-color:var(--primary); }
+    .ftxt { resize:vertical; min-height:80px; }
+    .frow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .fhint { font-size:12px; color:var(--text-2); margin-top:4px; }
+
+    /* Segment form */
+    .seg-form-row { background:var(--card); border:1.5px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px; }
+    .seg-form-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .seg-type-badge { display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:20px; font-size:13px; font-weight:700; flex:1; cursor:pointer; border:none; -webkit-appearance:none; }
+    .seg-type-badge.warmup  { background:var(--warmup-light);  color:#c2410c; }
+    .seg-type-badge.main    { background:var(--primary-light);  color:#be123c; }
+    .seg-type-badge.cooldown{ background:var(--cooldown-light); color:#0369a1; }
+    .seg-del-btn { background:none; border:none; color:var(--text-2); font-size:18px; cursor:pointer; padding:4px; }
+    .seg-form-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .seg-field label { font-size:12px; font-weight:600; color:var(--text-2); display:block; margin-bottom:4px; }
+    .seg-field input { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:15px; font-family:inherit; -webkit-appearance:none; }
+    .seg-field input:focus { outline:none; border-color:var(--primary); }
+    .seg-notes-input { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; margin-top:8px; -webkit-appearance:none; }
+    .seg-notes-input:focus { outline:none; border-color:var(--primary); }
+    .add-seg-btn { width:100%; padding:12px; border:2px dashed var(--border); border-radius:10px; background:none; font-size:14px; font-weight:600; color:var(--text-2); cursor:pointer; margin-bottom:18px; }
+    .add-seg-btn:active { background:var(--bg); }
+
+    /* Type selector */
+    .type-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .type-opt { border:2px solid var(--border); border-radius:12px; padding:14px 10px; cursor:pointer; text-align:center; background:var(--card); transition:border-color .15s,background .15s; -webkit-user-select:none; user-select:none; }
+    .type-opt.sel { border-color:var(--primary); background:var(--primary-light); }
+    .type-opt .ti { font-size:28px; margin-bottom:5px; }
+    .type-opt .tn { font-size:13px; font-weight:700; color:var(--text); }
+    .type-opt .td { font-size:11px; color:var(--text-2); margin-top:1px; }
+    .fsec { display:none; }
+    .fsec.on { display:block; }
+
+    /* Buttons */
+    .btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; transition:opacity .15s; font-family:inherit; }
+    .btn:active { opacity:.8; }
+    .btn-primary { background:var(--primary); color:#fff; margin-bottom:10px; }
+    .btn-ghost   { background:var(--border); color:var(--text-2); }
+    .btn-strava  { background:var(--strava); color:#fff; margin-bottom:10px; }
+    .btn-green   { background:var(--success); color:#fff; margin-bottom:10px; }
+
+    /* Modal */
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; align-items:flex-end; justify-content:center; }
+    .overlay.open { display:flex; }
+    .modal { background:var(--bg); border-radius:22px 22px 0 0; width:100%; max-width:430px; max-height:92dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:0 16px calc(16px + env(safe-area-inset-bottom,0px)); }
+    .modal-drag { width:40px; height:4px; background:var(--border); border-radius:2px; margin:14px auto 18px; }
+    .modal-title { font-size:20px; font-weight:800; text-align:center; margin-bottom:22px; }
+
+    /* Settings */
+    .settings-section { background:var(--card); border-radius:var(--r); padding:16px; margin-bottom:16px; box-shadow:var(--shadow); }
+    .settings-section-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); margin-bottom:14px; }
+    .strava-connected-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .athlete-avatar { width:46px; height:46px; border-radius:23px; background:var(--strava); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; overflow:hidden; flex-shrink:0; }
+    .athlete-avatar img { width:100%; height:100%; object-fit:cover; }
+    .athlete-name { font-size:15px; font-weight:700; }
+    .athlete-sub  { font-size:12px; color:var(--text-2); }
+    .strava-status-dot { width:8px; height:8px; border-radius:4px; background:var(--success); display:inline-block; margin-right:5px; }
+    .sync-info { font-size:12px; color:var(--text-2); margin-bottom:12px; }
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- Header -->
   <header id="app-header">
     <button id="header-back" onclick="goBack()">‹</button>
     <span id="header-logo">🏃</span>
     <h1 id="header-title">RunTrack</h1>
     <button id="header-edit-btn" onclick="editCurrentGoal()">Modifier</button>
-    <button id="header-settings" onclick="openModal('modal-settings')" title="Paramètres">
-      ⚙️
-      <span id="settings-dot"></span>
-    </button>
+    <button id="header-settings" onclick="openModal('modal-settings')">⚙️<span id="settings-dot"></span></button>
   </header>
 
-  <!-- Content -->
   <main id="content">
-
-    <!-- Goals -->
-    <div id="view-goals" class="view active">
-      <div id="goals-list"></div>
-    </div>
-
-    <!-- Goal detail -->
-    <div id="view-goal-detail" class="view">
-      <div id="goal-detail"></div>
-    </div>
-
-    <!-- All sessions -->
-    <div id="view-sessions" class="view">
-      <div id="all-sessions"></div>
-    </div>
-
-    <!-- Stats -->
-    <div id="view-stats" class="view">
-      <div id="stats-content"></div>
-    </div>
-
+    <div id="view-goals" class="view active"><div id="goals-list"></div></div>
+    <div id="view-goal-detail" class="view"><div id="goal-detail"></div></div>
+    <div id="view-workouts" class="view"><div id="all-workouts"></div></div>
+    <div id="view-stats" class="view"><div id="stats-content"></div></div>
   </main>
 
-  <!-- FAB -->
   <button id="fab" onclick="fabClick()">+</button>
 
-  <!-- Bottom nav -->
   <nav id="bottom-nav">
     <button class="nav-tab active" id="tab-goals" onclick="showView('goals')">
       <span class="icon">🎯</span>Objectifs
     </button>
-    <button class="nav-tab" id="tab-sessions" onclick="showView('sessions')">
-      <span class="icon">🏃</span>Séances
-      <span class="nav-badge" id="sessions-badge"></span>
+    <button class="nav-tab" id="tab-workouts" onclick="showView('workouts')">
+      <span class="icon">📋</span>Séances
+      <span class="nav-badge" id="workouts-badge"></span>
     </button>
     <button class="nav-tab" id="tab-stats" onclick="showView('stats')">
       <span class="icon">📊</span>Stats
     </button>
   </nav>
-
 </div>
 
-<!-- ── Modal: Goal ──────────────────────────────────── -->
+<!-- Modal: Goal -->
 <div class="overlay" id="modal-goal">
   <div class="modal">
     <div class="modal-drag"></div>
@@ -795,203 +263,156 @@
     <form id="form-goal">
       <input type="hidden" id="g-id">
       <input type="hidden" id="g-type" value="performance">
-
       <div class="fgrp">
         <label class="flbl">Type d'objectif</label>
         <div class="type-grid">
-          <div class="type-opt sel" data-t="performance" onclick="pickType('performance')">
-            <div class="ti">🏆</div>
-            <div class="tn">Performance</div>
-            <div class="td">Distance + temps</div>
-          </div>
-          <div class="type-opt" data-t="frequency" onclick="pickType('frequency')">
-            <div class="ti">📅</div>
-            <div class="tn">Fréquence</div>
-            <div class="td">X séances/période</div>
-          </div>
-          <div class="type-opt" data-t="event" onclick="pickType('event')">
-            <div class="ti">🎽</div>
-            <div class="tn">Événement</div>
-            <div class="td">Course avec date</div>
-          </div>
-          <div class="type-opt" data-t="free" onclick="pickType('free')">
-            <div class="ti">✨</div>
-            <div class="tn">Libre</div>
-            <div class="td">Objectif custom</div>
-          </div>
+          <div class="type-opt sel" data-t="performance" onclick="pickType('performance')"><div class="ti">🏆</div><div class="tn">Performance</div><div class="td">Distance + temps</div></div>
+          <div class="type-opt" data-t="frequency" onclick="pickType('frequency')"><div class="ti">📅</div><div class="tn">Fréquence</div><div class="td">X séances/période</div></div>
+          <div class="type-opt" data-t="event" onclick="pickType('event')"><div class="ti">🎽</div><div class="tn">Événement</div><div class="td">Course avec date</div></div>
+          <div class="type-opt" data-t="free" onclick="pickType('free')"><div class="ti">✨</div><div class="tn">Libre</div><div class="td">Objectif custom</div></div>
         </div>
       </div>
-
       <div class="fgrp">
-        <label class="flbl" for="g-title">Nom de l'objectif</label>
+        <label class="flbl">Nom de l'objectif</label>
         <input class="finp" id="g-title" type="text" placeholder="Ex: 10km en 50 minutes" required>
       </div>
-
       <div class="fsec on" id="fs-performance">
         <div class="frow">
-          <div class="fgrp">
-            <label class="flbl">Distance cible (km)</label>
-            <input class="finp" id="g-dist" type="number" placeholder="10" min="0.1" step="0.1">
-          </div>
-          <div class="fgrp">
-            <label class="flbl">Temps cible (min)</label>
-            <input class="finp" id="g-time" type="number" placeholder="50" min="1">
-          </div>
+          <div class="fgrp"><label class="flbl">Distance cible (km)</label><input class="finp" id="g-dist" type="number" placeholder="10" min="0.1" step="0.1"></div>
+          <div class="fgrp"><label class="flbl">Temps cible (min)</label><input class="finp" id="g-time" type="number" placeholder="50" min="1"></div>
         </div>
       </div>
-
       <div class="fsec" id="fs-frequency">
         <div class="frow">
-          <div class="fgrp">
-            <label class="flbl">Nombre de séances</label>
-            <input class="finp" id="g-freq-n" type="number" placeholder="3" min="1">
-          </div>
-          <div class="fgrp">
-            <label class="flbl">Par</label>
-            <select class="fsel" id="g-freq-p">
-              <option value="week">Semaine</option>
-              <option value="month">Mois</option>
-            </select>
-          </div>
+          <div class="fgrp"><label class="flbl">Séances par</label><input class="finp" id="g-freq-n" type="number" placeholder="3" min="1"></div>
+          <div class="fgrp"><label class="flbl">Période</label><select class="fsel" id="g-freq-p"><option value="week">Semaine</option><option value="month">Mois</option></select></div>
         </div>
       </div>
-
       <div class="fsec" id="fs-event">
-        <div class="fgrp">
-          <label class="flbl">Nom de la course</label>
-          <input class="finp" id="g-ev-name" type="text" placeholder="Ex: Semi de Bruxelles">
-        </div>
+        <div class="fgrp"><label class="flbl">Nom de la course</label><input class="finp" id="g-ev-name" type="text" placeholder="Ex: Semi de Bruxelles"></div>
         <div class="frow">
-          <div class="fgrp">
-            <label class="flbl">Date</label>
-            <input class="finp" id="g-ev-date" type="date">
-          </div>
-          <div class="fgrp">
-            <label class="flbl">Distance (km)</label>
-            <input class="finp" id="g-ev-dist" type="number" placeholder="21.1" min="0.1" step="0.1">
-          </div>
+          <div class="fgrp"><label class="flbl">Date</label><input class="finp" id="g-ev-date" type="date"></div>
+          <div class="fgrp"><label class="flbl">Distance (km)</label><input class="finp" id="g-ev-dist" type="number" placeholder="21.1" min="0.1" step="0.1"></div>
         </div>
       </div>
-
       <div class="fsec" id="fs-free">
-        <div class="fgrp">
-          <label class="flbl">Description</label>
-          <textarea class="ftxt" id="g-desc" placeholder="Décris ton objectif..."></textarea>
-        </div>
+        <div class="fgrp"><label class="flbl">Description</label><textarea class="ftxt" id="g-desc" placeholder="Décris ton objectif..."></textarea></div>
       </div>
-
       <button type="submit" class="btn btn-primary" id="btn-save-goal">Créer l'objectif</button>
       <button type="button" class="btn btn-ghost" onclick="closeModal('modal-goal')">Annuler</button>
     </form>
   </div>
 </div>
 
-<!-- ── Modal: Session ──────────────────────────────── -->
-<div class="overlay" id="modal-session">
+<!-- Modal: Workout -->
+<div class="overlay" id="modal-workout">
   <div class="modal">
     <div class="modal-drag"></div>
-    <div class="modal-title" id="ms-title">Nouvelle séance</div>
-    <form id="form-session">
-      <input type="hidden" id="s-id">
-
-      <div class="fgrp">
-        <label class="flbl">Objectif associé</label>
-        <select class="fsel" id="s-goal" required></select>
-      </div>
-
-      <div class="fgrp">
-        <label class="flbl">Date</label>
-        <input class="finp" id="s-date" type="date" required>
-      </div>
-
-      <div class="fgrp">
-        <label class="flbl">Lieu / Parcours</label>
-        <input class="finp" id="s-loc" type="text" placeholder="Ex: Bois de la Cambre, Parc du Cinquantenaire…">
-      </div>
-
+    <div class="modal-title" id="mw-title">Nouvelle séance</div>
+    <form id="form-workout">
+      <input type="hidden" id="w-id">
+      <input type="hidden" id="w-goal-id">
       <div class="frow">
         <div class="fgrp">
-          <label class="flbl">Distance (km)</label>
-          <input class="finp" id="s-dist" type="number" placeholder="0.0" min="0.1" step="0.01" oninput="calcPace()">
+          <label class="flbl">Date planifiée</label>
+          <input class="finp" id="w-date" type="date" required>
         </div>
         <div class="fgrp">
-          <label class="flbl">Durée (min)</label>
-          <input class="finp" id="s-dur" type="number" placeholder="0" min="1" step="1" oninput="calcPace()">
+          <label class="flbl">Objectif</label>
+          <select class="fsel" id="w-goal-sel" required></select>
         </div>
       </div>
-
       <div class="fgrp">
-        <label class="flbl">Allure (min/km)</label>
-        <div class="pace-box" id="pace-box">— Saisir distance et durée</div>
-        <p class="fhint">Calculée automatiquement</p>
+        <label class="flbl">Titre de la séance</label>
+        <input class="finp" id="w-title" type="text" placeholder="Ex: Footing progressif, Fractionné 8×400m…" required>
       </div>
-
       <div class="fgrp">
-        <label class="flbl">Notes</label>
-        <textarea class="ftxt" id="s-notes" placeholder="Ressenti, conditions météo, commentaires…"></textarea>
+        <label class="flbl">Segments d'entraînement</label>
+        <div id="seg-list"></div>
+        <div style="display:flex;gap:8px;margin-bottom:18px">
+          <button type="button" class="add-seg-btn" style="flex:1" onclick="addSeg('warmup')">🔥 Échauffement</button>
+          <button type="button" class="add-seg-btn" style="flex:1" onclick="addSeg('main')">🏃 Trançon</button>
+          <button type="button" class="add-seg-btn" style="flex:1" onclick="addSeg('cooldown')">❄️ Retour calme</button>
+        </div>
       </div>
-
-      <button type="submit" class="btn btn-primary" id="btn-save-sess">Enregistrer la séance</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-session')">Annuler</button>
+      <div class="fgrp">
+        <label class="flbl">Notes / consignes</label>
+        <textarea class="ftxt" id="w-notes" placeholder="Instructions générales, objectifs de la séance…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" id="btn-save-workout">Planifier la séance</button>
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-workout')">Annuler</button>
     </form>
   </div>
 </div>
 
-<!-- ── Modal: Settings / Strava ───────────────────── -->
+<!-- Modal: Mark done -->
+<div class="overlay" id="modal-done">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title">✅ Séance effectuée !</div>
+    <input type="hidden" id="done-workout-id">
+    <div class="fgrp">
+      <label class="flbl">Date de réalisation</label>
+      <input class="finp" id="done-date" type="date">
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Distance réelle (km)</label>
+      <input class="finp" id="done-dist" type="number" placeholder="Ex: 10.2" min="0" step="0.01" oninput="calcDonePace()">
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Durée réelle (min)</label>
+      <input class="finp" id="done-dur" type="number" placeholder="Ex: 52" min="0" oninput="calcDonePace()">
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Allure réelle</label>
+      <div class="pace-box" id="done-pace-box" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;color:var(--text-2);font-style:italic;background:var(--bg)">— Saisir distance et durée</div>
+    </div>
+    <div class="fgrp" id="done-strava-group" style="display:none">
+      <label class="flbl">Lier à une activité Strava</label>
+      <select class="fsel" id="done-strava-sel">
+        <option value="">— Ne pas lier</option>
+      </select>
+      <p class="fhint">Les données Strava remplaceront la distance/durée saisies.</p>
+    </div>
+    <div class="fgrp">
+      <label class="flbl">Notes</label>
+      <textarea class="ftxt" id="done-notes" placeholder="Ressenti, conditions…" style="min-height:70px"></textarea>
+    </div>
+    <button class="btn btn-green" onclick="confirmDone()">Confirmer</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-done')">Annuler</button>
+  </div>
+</div>
+
+<!-- Modal: Settings -->
 <div class="overlay" id="modal-settings">
   <div class="modal">
     <div class="modal-drag"></div>
     <div class="modal-title">Paramètres</div>
-
-    <!-- Strava connected state (hidden by default) -->
     <div id="strava-connected-block" style="display:none">
       <div class="settings-section">
         <div class="settings-section-title">Strava</div>
         <div class="strava-connected-row">
           <div class="athlete-avatar" id="athlete-avatar">S</div>
-          <div class="athlete-info">
-            <div class="athlete-name" id="athlete-name">—</div>
-            <div class="athlete-sub">
-              <span class="strava-status-dot"></span>Connecté à Strava
-            </div>
-          </div>
+          <div><div class="athlete-name" id="athlete-name">—</div><div class="athlete-sub"><span class="strava-status-dot"></span>Connecté</div></div>
         </div>
         <div class="sync-info" id="sync-info">Jamais synchronisé</div>
-        <button class="btn btn-strava" id="btn-sync" onclick="syncStrava()">
-          <span id="sync-icon">⟳</span> Synchroniser maintenant
-        </button>
+        <button class="btn btn-strava" id="btn-sync" onclick="syncStrava()"><span id="sync-icon">⟳</span> Synchroniser maintenant</button>
         <button class="btn btn-ghost" onclick="disconnectStrava()">Déconnecter Strava</button>
       </div>
     </div>
-
-    <!-- Strava setup state -->
     <div id="strava-setup-block">
       <div class="settings-section">
         <div class="settings-section-title">Connecter Strava</div>
-        <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.5">
-          Tes activités Strava seront importées automatiquement pour être liées à tes objectifs.
-        </p>
-        <div class="fgrp">
-          <label class="flbl">Client ID</label>
-          <input class="finp" id="strava-client-id" type="text" inputmode="numeric" placeholder="Ex: 123456">
-          <p class="fhint">Disponible sur strava.com/settings/api</p>
-        </div>
-        <div class="fgrp">
-          <label class="flbl">Client Secret</label>
-          <input class="finp" id="strava-client-secret" type="password" placeholder="••••••••••••••••">
-        </div>
+        <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.5">Tes activités Strava seront proposées à la liaison après chaque séance.</p>
+        <div class="fgrp"><label class="flbl">Client ID</label><input class="finp" id="strava-client-id" type="text" inputmode="numeric" placeholder="123456"><p class="fhint">strava.com/settings/api</p></div>
+        <div class="fgrp"><label class="flbl">Client Secret</label><input class="finp" id="strava-client-secret" type="password" placeholder="••••••••••••••••"></div>
         <button class="btn btn-strava" onclick="connectStrava()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="flex-shrink:0">
-            <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.169"/>
-          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.169"/></svg>
           Se connecter avec Strava
         </button>
-        <p style="font-size:11px;color:var(--text-2);text-align:center;margin-top:8px;line-height:1.4">
-          Tes identifiants sont stockés uniquement sur cet appareil.
-        </p>
+        <p style="font-size:11px;color:var(--text-2);text-align:center;margin-top:8px">Identifiants stockés uniquement sur cet appareil.</p>
       </div>
     </div>
-
     <button class="btn btn-ghost" onclick="closeModal('modal-settings')">Fermer</button>
   </div>
 </div>
@@ -1000,879 +421,735 @@
 // ═══════════════════════════════════════════════════════
 //  DATA
 // ═══════════════════════════════════════════════════════
-const KEY = 'runtrack_v1';
-
-const DEFAULT_STRAVA = {
-  clientId: '', clientSecret: '',
-  accessToken: '', refreshToken: '',
-  tokenExpiry: 0, athlete: null,
-  lastSyncTime: 0, pending: []
-};
-
-let db = { goals: [], sessions: [], strava: { ...DEFAULT_STRAVA } };
+const KEY = 'runtrack_v2';
+const DEFAULT_STRAVA = { clientId:'', clientSecret:'', accessToken:'', refreshToken:'', tokenExpiry:0, athlete:null, lastSyncTime:0, pending:[] };
+let db = { goals:[], workouts:[], strava:{...DEFAULT_STRAVA} };
 
 function load() {
   try {
-    const stored = JSON.parse(localStorage.getItem(KEY)) || {};
-    db = {
-      goals:    stored.goals    || [],
-      sessions: stored.sessions || [],
-      strava:   { ...DEFAULT_STRAVA, ...(stored.strava || {}) }
-    };
-  } catch {
-    db = { goals: [], sessions: [], strava: { ...DEFAULT_STRAVA } };
-  }
+    // Try v2 first
+    let stored = JSON.parse(localStorage.getItem('runtrack_v2'));
+    if (!stored) {
+      // Migrate from v1
+      const old = JSON.parse(localStorage.getItem('runtrack_v1'));
+      if (old) {
+        stored = {
+          goals: old.goals || [],
+          workouts: (old.sessions || []).map(s => ({
+            id: s.id, goalId: s.goalId, title: s.loc || 'Séance',
+            plannedDate: s.date, segments: [], notes: s.notes || '',
+            completed: true, completedAt: s.createdAt || s.date,
+            stravaId: s.stravaId || null, stravaName: null,
+            actualDist: s.dist || null, actualDur: s.dur || null, actualPace: s.pace || null,
+          })),
+          strava: old.strava || {}
+        };
+      }
+    }
+    if (stored) {
+      db = { goals: stored.goals||[], workouts: stored.workouts||[], strava:{...DEFAULT_STRAVA,...(stored.strava||{})} };
+    }
+  } catch { db = { goals:[], workouts:[], strava:{...DEFAULT_STRAVA} }; }
 }
 
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
-  catch (e) { console.warn('Impossible de sauvegarder les données :', e); }
+  catch(e) { console.warn('Save failed:', e); }
 }
 
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 // ═══════════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
-let view = 'goals';
-let activeGoalId = null;
+let view = 'goals', activeGoalId = null;
 
 function showView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-
   view = v;
-
-  const logo    = document.getElementById('header-logo');
-  const title   = document.getElementById('header-title');
-  const back    = document.getElementById('header-back');
-  const editBtn = document.getElementById('header-edit-btn');
-  const fab     = document.getElementById('fab');
-
-  back.style.display    = 'none';
-  editBtn.style.display = 'none';
-  logo.style.display    = '';
-  fab.style.display     = '';
-
-  if (v === 'goal-detail') {
+  const logo=document.getElementById('header-logo'), title=document.getElementById('header-title'),
+        back=document.getElementById('header-back'), editBtn=document.getElementById('header-edit-btn'),
+        fab=document.getElementById('fab');
+  back.style.display='none'; editBtn.style.display='none'; logo.style.display=''; fab.style.display='';
+  if (v==='goal-detail') {
     document.getElementById('view-goal-detail').classList.add('active');
-    const g = db.goals.find(x => x.id === activeGoalId);
-    title.textContent     = g ? g.title : '';
-    back.style.display    = '';
-    editBtn.style.display = '';
-    logo.style.display    = 'none';
+    const g=db.goals.find(x=>x.id===activeGoalId);
+    title.textContent=g?g.title:''; back.style.display=''; editBtn.style.display=''; logo.style.display='none';
     renderGoalDetail();
   } else {
     document.getElementById(`view-${v}`).classList.add('active');
     document.getElementById(`tab-${v}`)?.classList.add('active');
-    const labels = { goals: 'RunTrack', sessions: 'Mes séances', stats: 'Statistiques' };
-    title.textContent = labels[v] || 'RunTrack';
-    if (v === 'stats')    fab.style.display = 'none';
-    if (v === 'goals')    renderGoals();
-    if (v === 'sessions') renderAllSessions();
-    if (v === 'stats')    renderStats();
+    title.textContent={goals:'RunTrack',workouts:'Mes séances',stats:'Statistiques'}[v]||'RunTrack';
+    if(v==='stats') fab.style.display='none';
+    if(v==='goals')    renderGoals();
+    if(v==='workouts') renderAllWorkouts();
+    if(v==='stats')    renderStats();
   }
-
   updateBadge();
-  document.getElementById('content').scrollTop = 0;
+  document.getElementById('content').scrollTop=0;
 }
 
-function goBack() { activeGoalId = null; showView('goals'); }
-function fabClick() {
-  if (view === 'goals') openGoalModal();
-  else openSessionModal(activeGoalId);
-}
-function editCurrentGoal() { if (activeGoalId) openGoalModal(activeGoalId); }
+function goBack() { activeGoalId=null; showView('goals'); }
+function fabClick() { if(view==='goals') openGoalModal(); else openWorkoutModal(activeGoalId); }
+function editCurrentGoal() { if(activeGoalId) openGoalModal(activeGoalId); }
 
 function updateBadge() {
-  const n = (db.strava.pending || []).length;
-  const badge = document.getElementById('sessions-badge');
-  const dot   = document.getElementById('settings-dot');
-  badge.textContent = n || '';
-  badge.style.display = n ? 'flex' : 'none';
-  dot.style.display   = (db.strava.clientId && !db.strava.accessToken) ? 'block' : 'none';
+  const n=(db.strava.pending||[]).length;
+  const b=document.getElementById('workouts-badge');
+  b.textContent=n||''; b.style.display=n?'flex':'none';
+  document.getElementById('settings-dot').style.display=(db.strava.clientId&&!db.strava.accessToken)?'block':'none';
 }
 
 // ═══════════════════════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════════════════════
 const TYPE_META = {
-  performance: { icon: '🏆', label: 'Performance', cls: 'performance' },
-  frequency:   { icon: '📅', label: 'Fréquence',   cls: 'frequency'   },
-  event:       { icon: '🎽', label: 'Événement',   cls: 'event'       },
-  free:        { icon: '✨', label: 'Libre',        cls: 'free'        },
+  performance:{icon:'🏆',label:'Performance',cls:'performance'},
+  frequency:  {icon:'📅',label:'Fréquence',  cls:'frequency'},
+  event:      {icon:'🎽',label:'Événement',  cls:'event'},
+  free:       {icon:'✨',label:'Libre',       cls:'free'},
+};
+const SEG_META = {
+  warmup:   {icon:'🔥',label:'Échauffement', cls:'warmup'},
+  main:     {icon:'🏃',label:'Trançon',      cls:'main'},
+  cooldown: {icon:'❄️',label:'Retour calme', cls:'cooldown'},
 };
 
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmDist(km){if(!km)return'0';return km%1===0?String(km):km.toFixed(1);}
+function fmDur(min){if(!min)return'—';const h=Math.floor(min/60),m=Math.round(min%60);return h?`${h}h${String(m).padStart(2,'0')}`:`${m}min`;}
+function fmPace(v){if(!v||v<=0)return'—';const m=Math.floor(v),s=Math.round((v-m)*60);return`${m}:${String(s).padStart(2,'0')}`;}
+function parsePace(str){if(!str)return null;if(str.includes(':')){ const[m,s]=str.split(':').map(Number);return m+(s||0)/60;}return parseFloat(str)||null;}
+function fmDate(d){const dt=new Date(d+'T12:00');return dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
+function fmDateShort(d){const dt=new Date(d+'T12:00');return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
+function weekKey(d){const dt=new Date(d+'T12:00'),day=dt.getDay(),mon=new Date(dt);mon.setDate(dt.getDate()-(day===0?6:day-1));return mon.toISOString().slice(0,10);}
+function weekLabel(k){const dt=new Date(k+'T12:00');return'Semaine du '+dt.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});}
+
+function goalWorkouts(id){return db.workouts.filter(w=>w.goalId===id);}
+function goalCompleted(id){return goalWorkouts(id).filter(w=>w.completed);}
+
+function goalSubtitle(g){
+  if(g.type==='performance')return`${g.targetDist??'?'} km en ${g.targetTime??'?'} min`;
+  if(g.type==='frequency')return`${g.freqN??'?'}× par ${g.freqP==='week'?'semaine':'mois'}`;
+  if(g.type==='event'){const d=g.evDate?new Date(g.evDate+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'';return`${g.evName||'Course'}${d?' · '+d:''}`;}
+  return g.desc?(g.desc.length>55?g.desc.slice(0,52)+'…':g.desc):'Objectif libre';
 }
 
-function fmDist(km) {
-  if (!km) return '0';
-  return km % 1 === 0 ? String(km) : km.toFixed(1);
-}
-
-function fmDur(min) {
-  if (!min) return '0min';
-  const h = Math.floor(min / 60), m = Math.round(min % 60);
-  return h ? `${h}h${String(m).padStart(2,'0')}` : `${m}min`;
-}
-
-function fmPace(mPerKm) {
-  if (!mPerKm || mPerKm <= 0) return '—';
-  const m = Math.floor(mPerKm);
-  const s = Math.round((mPerKm - m) * 60);
-  return `${m}:${String(s).padStart(2,'0')}`;
-}
-
-function goalSessions(id) { return db.sessions.filter(s => s.goalId === id); }
-
-function goalSubtitle(g) {
-  if (g.type === 'performance') return `${g.targetDist ?? '?'} km en ${g.targetTime ?? '?'} min`;
-  if (g.type === 'frequency')   return `${g.freqN ?? '?'}× par ${g.freqP === 'week' ? 'semaine' : 'mois'}`;
-  if (g.type === 'event') {
-    const d = g.evDate ? new Date(g.evDate + 'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}) : '';
-    return `${g.evName || 'Course'}${d ? ' · ' + d : ''}`;
-  }
-  return g.desc ? (g.desc.length > 55 ? g.desc.slice(0,52)+'…' : g.desc) : 'Objectif libre';
-}
-
-function goalProgress(g) {
-  const sess = goalSessions(g.id);
-
-  if (g.type === 'performance') {
-    const qualifying = sess.filter(s => s.dist >= (g.targetDist || 0));
-    if (!qualifying.length) {
-      const best = sess.reduce((b, s) => s.dist > (b?.dist || 0) ? s : b, null);
-      return {
-        pct: best ? Math.min(100, (best.dist / (g.targetDist || 1)) * 100) : 0,
-        label: best ? `Meilleure: ${fmDist(best.dist)} km en ${fmDur(best.dur)}` : 'Aucune séance',
-        done: false
-      };
+function goalProgress(g){
+  const done=goalCompleted(g.id);
+  if(g.type==='performance'){
+    const qualifying=done.filter(w=>w.actualDist>=(g.targetDist||0));
+    if(!qualifying.length){
+      const best=done.reduce((b,w)=>w.actualDist>(b?.actualDist||0)?w:b,null);
+      return{pct:best?Math.min(100,(best.actualDist/(g.targetDist||1))*100):0,label:best?`Meilleure: ${fmDist(best.actualDist)} km en ${fmDur(best.actualDur)}`:'Aucune séance effectuée',done:false};
     }
-    const best = qualifying.reduce((b, s) => s.dur < (b?.dur ?? Infinity) ? s : b, null);
-    const done = best.dur <= (g.targetTime || Infinity);
-    return {
-      pct: done ? 100 : Math.min(99, ((g.targetTime || 1) / best.dur) * 100),
-      label: `Meilleur: ${fmDist(best.dist)} km en ${fmDur(best.dur)} · ${fmPace(best.pace)}/km`,
-      done
-    };
+    const best=qualifying.reduce((b,w)=>w.actualDur<(b?.actualDur??Infinity)?w:b,null);
+    const achieved=best.actualDur<=(g.targetTime||Infinity);
+    return{pct:achieved?100:Math.min(99,((g.targetTime||1)/best.actualDur)*100),label:`Meilleur: ${fmDist(best.actualDist)} km en ${fmDur(best.actualDur)} · ${fmPace(best.actualPace)}/km`,done:achieved};
   }
-
-  if (g.type === 'frequency') {
-    const now = new Date();
-    let start;
-    if (g.freqP === 'week') {
-      start = new Date(now);
-      const d = now.getDay();
-      start.setDate(now.getDate() - (d === 0 ? 6 : d - 1));
-      start.setHours(0,0,0,0);
-    } else {
-      start = new Date(now.getFullYear(), now.getMonth(), 1);
-    }
-    const count = sess.filter(s => new Date(s.date + 'T12:00') >= start).length;
-    const target = g.freqN || 1;
-    return {
-      pct: Math.min(100, (count / target) * 100),
-      label: `${count}/${target} séances ${g.freqP === 'week' ? 'cette semaine' : 'ce mois'}`,
-      done: count >= target
-    };
+  if(g.type==='frequency'){
+    const now=new Date();let start;
+    if(g.freqP==='week'){start=new Date(now);const d=now.getDay();start.setDate(now.getDate()-(d===0?6:d-1));start.setHours(0,0,0,0);}
+    else start=new Date(now.getFullYear(),now.getMonth(),1);
+    const count=done.filter(w=>new Date((w.completedAt||w.plannedDate)+'T12:00')>=start).length;
+    const target=g.freqN||1;
+    return{pct:Math.min(100,(count/target)*100),label:`${count}/${target} séances ${g.freqP==='week'?'cette semaine':'ce mois'}`,done:count>=target};
   }
-
-  if (g.type === 'event') {
-    const evDate = g.evDate ? new Date(g.evDate + 'T12:00') : null;
-    const now = new Date();
-    const daysLeft = evDate ? Math.ceil((evDate - now) / 86400000) : null;
-    const totalDist = sess.reduce((s, x) => s + (x.dist || 0), 0);
-    let pct = 0;
-    if (g.createdAt && evDate) {
-      const created = new Date(g.createdAt);
-      const total = (evDate - created) / 86400000;
-      const elapsed = (now - created) / 86400000;
-      pct = Math.min(100, Math.max(0, (elapsed / Math.max(total, 1)) * 100));
-    }
-    const dStr = daysLeft === null ? '' : daysLeft > 0 ? `${daysLeft}j restants` : daysLeft === 0 ? "Aujourd'hui !" : 'Passé';
-    return {
-      pct,
-      label: `${sess.length} séances · ${fmDist(totalDist)} km${dStr ? ' · ' + dStr : ''}`,
-      done: daysLeft !== null && daysLeft <= 0
-    };
+  if(g.type==='event'){
+    const evDate=g.evDate?new Date(g.evDate+'T12:00'):null;
+    const now=new Date();const daysLeft=evDate?Math.ceil((evDate-now)/86400000):null;
+    const totalDist=done.reduce((s,w)=>s+(w.actualDist||0),0);
+    let pct=0;
+    if(g.createdAt&&evDate){const created=new Date(g.createdAt);pct=Math.min(100,Math.max(0,((now-created)/(evDate-created))*100));}
+    const dStr=daysLeft===null?'':daysLeft>0?`${daysLeft}j restants`:daysLeft===0?"Aujourd'hui !":'Passé';
+    return{pct,label:`${done.length} séances · ${fmDist(totalDist)} km${dStr?' · '+dStr:''}`,done:daysLeft!==null&&daysLeft<=0};
   }
-
-  const totalDist = sess.reduce((s, x) => s + (x.dist || 0), 0);
-  return {
-    pct: Math.min(100, sess.length * 12),
-    label: `${sess.length} séance${sess.length !== 1 ? 's' : ''} · ${fmDist(totalDist)} km`,
-    done: false
-  };
+  const totalDist=done.reduce((s,w)=>s+(w.actualDist||0),0);
+  return{pct:Math.min(100,done.length*12),label:`${done.length} séances · ${fmDist(totalDist)} km`,done:false};
 }
 
 // ═══════════════════════════════════════════════════════
 //  RENDER: GOALS
 // ═══════════════════════════════════════════════════════
-function renderGoals() {
-  const el = document.getElementById('goals-list');
-  if (!db.goals.length) {
-    el.innerHTML = `<div class="empty"><div class="em">🎯</div><h3>Aucun objectif</h3><p>Crée ton premier objectif pour commencer à suivre tes séances.</p></div>`;
-    return;
-  }
-
-  let html = `<div class="sec-hdr"><span class="sec-title">Mes objectifs</span><span class="sec-count">${db.goals.length}</span></div>`;
-
-  db.goals.forEach(g => {
-    const m = TYPE_META[g.type] || TYPE_META.free;
-    const p = goalProgress(g);
-    const sc = goalSessions(g.id).length;
-
-    html += `
-      <div class="card card-tap" onclick="openDetail('${g.id}')">
-        <div class="goal-row">
-          <div class="goal-icon ic-${m.cls}">${m.icon}</div>
-          <div class="goal-meta">
-            <div class="goal-name">${esc(g.title)}</div>
-            <div class="goal-sub">${esc(goalSubtitle(g))}</div>
-          </div>
-          <span class="badge bd-${m.cls}">${m.label}</span>
-        </div>
-        <div class="prog-track"><div class="prog-fill${p.done?' done':''}" style="width:${p.pct}%"></div></div>
-        <div class="prog-labels"><span>${esc(p.label)}</span><span>${sc} séance${sc!==1?'s':''}</span></div>
-        ${p.done ? '<div class="achieved">✅ Objectif atteint !</div>' : ''}
-      </div>`;
+function renderGoals(){
+  const el=document.getElementById('goals-list');
+  if(!db.goals.length){el.innerHTML=`<div class="empty"><div class="em">🎯</div><h3>Aucun objectif</h3><p>Crée ton premier objectif pour planifier ton entraînement.</p></div>`;return;}
+  let html=`<div class="sec-hdr"><span class="sec-title">Mes objectifs</span><span class="sec-count">${db.goals.length}</span></div>`;
+  db.goals.forEach(g=>{
+    const m=TYPE_META[g.type]||TYPE_META.free, p=goalProgress(g);
+    const wAll=goalWorkouts(g.id), wDone=goalCompleted(g.id);
+    const next=wAll.filter(w=>!w.completed).sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate))[0];
+    html+=`<div class="card card-tap" onclick="openDetail('${g.id}')">
+      <div class="goal-row">
+        <div class="goal-icon ic-${m.cls}">${m.icon}</div>
+        <div class="goal-meta"><div class="goal-name">${esc(g.title)}</div><div class="goal-sub">${esc(goalSubtitle(g))}</div></div>
+        <span class="badge bd-${m.cls}">${m.label}</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill${p.done?' done':''}" style="width:${p.pct}%"></div></div>
+      <div class="prog-labels">
+        <span>${esc(p.label)}</span>
+        <span>${wDone.length}/${wAll.length} séances</span>
+      </div>
+      ${next?`<div style="font-size:12px;color:var(--text-2);margin-top:6px">Prochaine : ${esc(fmDateShort(next.plannedDate))} — ${esc(next.title)}</div>`:''}
+      ${p.done?'<div class="achieved">✅ Objectif atteint !</div>':''}
+    </div>`;
   });
-
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
 // ═══════════════════════════════════════════════════════
 //  RENDER: GOAL DETAIL
 // ═══════════════════════════════════════════════════════
-function openDetail(id) { activeGoalId = id; showView('goal-detail'); }
+function openDetail(id){activeGoalId=id;showView('goal-detail');}
 
-function renderGoalDetail() {
-  const g = db.goals.find(x => x.id === activeGoalId);
-  if (!g) { showView('goals'); return; }
+function renderGoalDetail(){
+  const g=db.goals.find(x=>x.id===activeGoalId);
+  if(!g){showView('goals');return;}
+  const m=TYPE_META[g.type]||TYPE_META.free, p=goalProgress(g);
+  const wAll=goalWorkouts(g.id).sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate));
+  const wDone=wAll.filter(w=>w.completed);
+  const totalDist=wDone.reduce((s,w)=>s+(w.actualDist||0),0);
+  const totalDur=wDone.reduce((s,w)=>s+(w.actualDur||0),0);
 
-  const m = TYPE_META[g.type] || TYPE_META.free;
-  const p = goalProgress(g);
-  const sess = goalSessions(g.id).sort((a,b) => b.date.localeCompare(a.date));
-  const totalDist = sess.reduce((s,x) => s+(x.dist||0), 0);
-  const totalDur  = sess.reduce((s,x) => s+(x.dur||0), 0);
+  // Group by week
+  const weeks={};
+  wAll.forEach(w=>{const k=weekKey(w.plannedDate);if(!weeks[k])weeks[k]=[];weeks[k].push(w);});
 
-  let sessHtml = !sess.length
-    ? `<div class="empty" style="padding:32px 0"><div class="em">🏃</div><h3>Aucune séance</h3><p>Appuie sur + pour ajouter ta première séance.</p></div>`
-    : sess.map(s => sessionCardHtml(s, true)).join('');
+  let weeksHtml='';
+  if(!wAll.length){
+    weeksHtml=`<div class="empty" style="padding:32px 0"><div class="em">📋</div><h3>Aucune séance planifiée</h3><p>Appuie sur + pour planifier ta première séance.</p></div>`;
+  } else {
+    Object.keys(weeks).sort().forEach(k=>{
+      weeksHtml+=`<div class="week-divider">${esc(weekLabel(k))}</div>`;
+      weeks[k].forEach(w=>{weeksHtml+=workoutCardHtml(w);});
+    });
+  }
 
-  document.getElementById('goal-detail').innerHTML = `
+  document.getElementById('goal-detail').innerHTML=`
     <div class="detail-hero">
       <div class="detail-icon ic-${m.cls}">${m.icon}</div>
       <div class="detail-name">${esc(g.title)}</div>
       <div class="detail-sub">${esc(goalSubtitle(g))}</div>
-      <div class="prog-track" style="height:10px">
-        <div class="prog-fill${p.done?' done':''}" style="width:${p.pct}%"></div>
-      </div>
+      <div class="prog-track" style="height:10px"><div class="prog-fill${p.done?' done':''}" style="width:${p.pct}%"></div></div>
       <div class="prog-labels"><span>${esc(p.label)}</span><span>${Math.round(p.pct)}%</span></div>
-      ${p.done ? '<div class="achieved" style="margin-top:10px">✅ Objectif atteint !</div>' : ''}
+      ${p.done?'<div class="achieved" style="margin-top:10px">✅ Objectif atteint !</div>':''}
     </div>
-
     <div class="mini-stats">
-      <div class="mini-card"><div class="mv">${sess.length}</div><div class="ml">Séances</div></div>
-      <div class="mini-card"><div class="mv">${fmDist(totalDist)}</div><div class="ml">km total</div></div>
-      <div class="mini-card"><div class="mv">${fmDur(totalDur)}</div><div class="ml">Temps</div></div>
+      <div class="mini-card"><div class="mv">${wDone.length}/${wAll.length}</div><div class="ml">Séances</div></div>
+      <div class="mini-card"><div class="mv">${fmDist(totalDist)}</div><div class="ml">km effectués</div></div>
+      <div class="mini-card"><div class="mv">${fmDur(totalDur)}</div><div class="ml">Temps total</div></div>
     </div>
-
-    <div class="sec-hdr"><span class="sec-title">Séances</span><span class="sec-count">${sess.length}</span></div>
-    ${sessHtml}
-
+    <div class="sec-hdr"><span class="sec-title">Planning</span><span class="sec-count">${wAll.length}</span></div>
+    ${weeksHtml}
     <div style="height:16px"></div>
     <button class="btn" style="background:#fee2e2;color:#dc2626;margin-top:8px" onclick="deleteGoal('${g.id}')">🗑 Supprimer cet objectif</button>
   `;
 }
 
-// ═══════════════════════════════════════════════════════
-//  RENDER: ALL SESSIONS
-// ═══════════════════════════════════════════════════════
-function renderAllSessions() {
-  const el = document.getElementById('all-sessions');
-  const pending = db.strava.pending || [];
+function workoutCardHtml(w){
+  const segsHtml=(w.segments||[]).map(s=>{
+    const sm=SEG_META[s.type]||SEG_META.main;
+    return`<div class="seg seg-${sm.cls}"><span class="seg-icon">${sm.icon}</span><span class="seg-label">${esc(s.label||sm.label)}</span><span class="seg-dur">${s.duration?s.duration+'min':''}</span>${s.pace?`<span class="seg-pace"> · ${fmPace(parsePace(s.pace))}/km</span>`:''}</div>`;
+  }).join('');
 
-  let html = '';
+  const totalMin=(w.segments||[]).reduce((t,s)=>t+(parseInt(s.duration)||0),0);
+  const dateLabel=fmDate(w.plannedDate);
+  const isPast=new Date(w.plannedDate+'T23:59')< new Date();
 
-  // ── Pending Strava activities ──
-  if (pending.length) {
-    const goalOptions = db.goals.map(g =>
-      `<option value="${g.id}">${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</option>`
-    ).join('');
-
-    html += `
-      <div style="margin-bottom:20px">
-        <div class="strava-section-hdr">
-          <div class="strava-logo">S</div>
-          <span class="strava-section-title">Nouvelles activités Strava</span>
-          <span class="strava-pending-count">${pending.length}</span>
-        </div>`;
-
-    pending.forEach(a => {
-      const d = new Date(a.date + 'T12:00');
-      const day = d.getDate();
-      const mo  = d.toLocaleDateString('fr-FR',{month:'short'});
-      html += `
-        <div class="strava-card">
-          <div class="sess-row" style="margin-bottom:10px">
-            <div class="date-badge strava-date">
-              <div class="db-day">${day}</div>
-              <div class="db-mo">${mo}</div>
-            </div>
-            <div class="sess-info">
-              <div class="sess-loc">${esc(a.name)}</div>
-              <div class="chips">
-                ${a.distance ? `<div class="chip">🏃 <strong>${fmDist(a.distance)} km</strong></div>` : ''}
-                ${a.duration ? `<div class="chip">⏱ <strong>${fmDur(a.duration)}</strong></div>` : ''}
-                ${a.pace     ? `<div class="chip">⚡ <strong>${fmPace(a.pace)}/km</strong></div>` : ''}
-                ${a.elevation ? `<div class="chip">↗ <strong>${Math.round(a.elevation)} m</strong></div>` : ''}
-              </div>
-            </div>
-          </div>
-          ${db.goals.length ? `
-            <div class="strava-link-row">
-              <select class="strava-goal-sel" id="sel-${a.id}">${goalOptions}</select>
-              <button class="btn-sm btn-strava-sm" onclick="linkStravaActivity(${a.id})">Lier</button>
-              <button class="btn-sm btn-neutral" onclick="discardStravaActivity(${a.id})">Ignorer</button>
-            </div>` : `
-            <p style="font-size:13px;color:var(--text-2)">
-              Crée d'abord un objectif pour lier cette activité.
-            </p>
-            <button class="btn-sm btn-neutral" style="margin-top:8px" onclick="discardStravaActivity(${a.id})">Ignorer</button>
-          `}
-        </div>`;
-    });
-
-    html += `</div>`;
-  }
-
-  // ── Regular sessions ──
-  if (!db.sessions.length) {
-    html += `<div class="empty"><div class="em">🏃</div><h3>Aucune séance</h3><p>Enregistre ta première séance en appuyant sur +, ou connecte Strava pour importer tes runs.</p></div>`;
+  let completedInfo='';
+  if(w.completed){
+    completedInfo=`<div class="workout-date-line past">Effectué le ${esc(fmDateShort(w.completedAt||w.plannedDate))}</div>`;
+    if(w.actualDist||w.actualDur){
+      completedInfo+=`<div class="workout-actual-stats">
+        ${w.actualDist?`<span class="wstat">🏃 <strong>${fmDist(w.actualDist)} km</strong></span>`:''}
+        ${w.actualDur?`<span class="wstat">⏱ <strong>${fmDur(w.actualDur)}</strong></span>`:''}
+        ${w.actualPace?`<span class="wstat">⚡ <strong>${fmPace(w.actualPace)}/km</strong></span>`:''}
+      </div>`;
+    }
+    if(w.stravaId){completedInfo+=`<div class="workout-strava-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.169"/></svg> ${esc(w.stravaName||'Strava')}</div>`;}
   } else {
-    const sorted = [...db.sessions].sort((a,b) => b.date.localeCompare(a.date));
-    html += `<div class="sec-hdr"><span class="sec-title">Toutes les séances</span><span class="sec-count">${sorted.length}</span></div>`;
-    sorted.forEach(s => {
-      const g = db.goals.find(x => x.id === s.goalId);
-      const gTag = g ? `<span class="badge bd-${TYPE_META[g.type]?.cls||'free'}" style="font-size:11px">${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</span>` : '';
-      const stravaTag = s.stravaId ? `<span class="badge" style="background:var(--strava-light);color:var(--strava);font-size:11px">Strava</span>` : '';
-      html += sessionCardHtml(s, false, gTag + stravaTag);
-    });
+    completedInfo=`<div class="workout-date-line${isPast?' past':''}">${esc(dateLabel)}</div>`;
   }
 
-  el.innerHTML = html;
+  const totalDisplay=totalMin>0?` · ${fmDur(totalMin)} estimé`:'';
+  const footer=w.completed
+    ?`<div class="card-footer"><button class="btn-sm btn-neutral" onclick="unmarkDone('${w.id}')">Marquer non effectué</button><button class="btn-sm btn-danger" onclick="deleteWorkout('${w.id}')">Supprimer</button></div>`
+    :`<div class="card-footer"><button class="btn-sm btn-success" onclick="openDoneModal('${w.id}')">✓ Marquer effectué</button><button class="btn-sm btn-neutral" onclick="openWorkoutModal(null,'${w.id}')">Modifier</button><button class="btn-sm btn-danger" onclick="deleteWorkout('${w.id}')">Supprimer</button></div>`;
+
+  return`<div class="card" id="wc-${w.id}">
+    <div class="workout-card">
+      <button class="check-circle${w.completed?' done':''}" onclick="openDoneModal('${w.id}')" ${w.completed?'disabled':''}>
+        <span class="check-icon">✓</span>
+      </button>
+      <div class="workout-info">
+        <div class="workout-title">${esc(w.title)}${totalDisplay?`<span style="font-weight:400;color:var(--text-2);font-size:13px">${totalDisplay}</span>`:''}</div>
+        ${completedInfo}
+        ${segsHtml?`<div class="segs">${segsHtml}</div>`:''}
+        ${w.notes?`<div style="font-size:13px;color:var(--text-2);font-style:italic;margin-top:4px">${esc(w.notes)}</div>`:''}
+      </div>
+    </div>
+    ${footer}
+  </div>`;
 }
 
-function sessionCardHtml(s, showDelete = false, extraTag = '') {
-  const d = new Date(s.date + 'T12:00');
-  const day = d.getDate();
-  const mo  = d.toLocaleDateString('fr-FR',{month:'short'});
-  const stravaDate = s.stravaId ? ' strava-date' : '';
-  return `
-    <div class="card" id="sc-${s.id}">
-      <div class="sess-row">
-        <div class="date-badge${stravaDate}"><div class="db-day">${day}</div><div class="db-mo">${mo}</div></div>
-        <div class="sess-info">
-          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
-            <div class="sess-loc">${esc(s.loc||'Séance')}</div>${extraTag}
+// ═══════════════════════════════════════════════════════
+//  RENDER: ALL WORKOUTS
+// ═══════════════════════════════════════════════════════
+function renderAllWorkouts(){
+  const el=document.getElementById('all-workouts');
+  const pending=db.strava.pending||[];
+  let html='';
+
+  // Strava pending
+  if(pending.length){
+    const goalOpts=db.goals.map(g=>`<option value="${g.id}">${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</option>`).join('');
+    html+=`<div style="margin-bottom:20px">
+      <div class="strava-section-hdr"><div class="strava-logo">S</div><span class="strava-section-title">Activités Strava à lier</span><span class="strava-pending-count">${pending.length}</span></div>`;
+    pending.forEach(a=>{
+      const d=new Date(a.date+'T12:00');
+      html+=`<div class="strava-card">
+        <div class="workout-card" style="margin-bottom:10px">
+          <div style="background:var(--strava);color:#fff;border-radius:10px;padding:8px 6px;text-align:center;min-width:42px;flex-shrink:0">
+            <div style="font-size:20px;font-weight:800;line-height:1">${d.getDate()}</div>
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase">${d.toLocaleDateString('fr-FR',{month:'short'})}</div>
           </div>
-          <div class="chips">
-            ${s.dist ? `<div class="chip">🏃 <strong>${fmDist(s.dist)} km</strong></div>` : ''}
-            ${s.dur  ? `<div class="chip">⏱ <strong>${fmDur(s.dur)}</strong></div>` : ''}
-            ${s.pace ? `<div class="chip">⚡ <strong>${fmPace(s.pace)}/km</strong></div>` : ''}
+          <div style="flex:1;min-width:0">
+            <div class="workout-title">${esc(a.name)}</div>
+            <div class="chips" style="display:flex;gap:10px;flex-wrap:wrap">
+              ${a.distance?`<span style="font-size:13px;color:var(--text-2)">🏃 <strong style="color:var(--text)">${fmDist(a.distance)} km</strong></span>`:''}
+              ${a.duration?`<span style="font-size:13px;color:var(--text-2)">⏱ <strong style="color:var(--text)">${fmDur(a.duration)}</strong></span>`:''}
+              ${a.pace?`<span style="font-size:13px;color:var(--text-2)">⚡ <strong style="color:var(--text)">${fmPace(a.pace)}/km</strong></span>`:''}
+            </div>
           </div>
-          ${s.notes ? `<div class="sess-note">${esc(s.notes)}</div>` : ''}
         </div>
-      </div>
-      ${showDelete ? `<div class="card-footer"><button class="btn-sm btn-danger" onclick="deleteSession('${s.id}')">Supprimer</button></div>` : ''}
-    </div>`;
+        <div class="strava-link-row">
+          <select class="strava-goal-sel" id="sel-${a.id}">${goalOpts}</select>
+          <button class="btn-sm btn-strava-sm" onclick="linkStravaActivity(${a.id})">Lier</button>
+          <button class="btn-sm btn-neutral" onclick="discardStravaActivity(${a.id})">Ignorer</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(!db.workouts.length){
+    html+=`<div class="empty"><div class="em">📋</div><h3>Aucune séance</h3><p>Planifie tes séances depuis un objectif en appuyant sur +.</p></div>`;
+    el.innerHTML=html;return;
+  }
+
+  const sorted=[...db.workouts].sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate));
+  const upcoming=sorted.filter(w=>!w.completed);
+  const done=sorted.filter(w=>w.completed).reverse();
+
+  if(upcoming.length){
+    html+=`<div class="sec-hdr"><span class="sec-title">À venir</span><span class="sec-count">${upcoming.length}</span></div>`;
+    upcoming.forEach(w=>{
+      const g=db.goals.find(x=>x.id===w.goalId);
+      const gTag=g?`<span class="badge bd-${TYPE_META[g.type]?.cls||'free'}" style="margin-left:6px;font-size:10px">${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</span>`:'';
+      html+=workoutCardHtml(w).replace('</div>\n  </div>',`${gTag}</div>\n  </div>`);
+    });
+  }
+
+  if(done.length){
+    html+=`<div class="sec-hdr" style="margin-top:${upcoming.length?'24px':'0'}"><span class="sec-title">Effectuées</span><span class="sec-count">${done.length}</span></div>`;
+    done.forEach(w=>{
+      const g=db.goals.find(x=>x.id===w.goalId);
+      const gTag=g?`<span class="badge bd-${TYPE_META[g.type]?.cls||'free'}" style="margin-left:6px;font-size:10px">${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</span>`:'';
+      html+=workoutCardHtml(w).replace('</div>\n  </div>',`${gTag}</div>\n  </div>`);
+    });
+  }
+
+  el.innerHTML=html;
 }
 
 // ═══════════════════════════════════════════════════════
 //  RENDER: STATS
 // ═══════════════════════════════════════════════════════
-function renderStats() {
-  const now = new Date();
-  const wStart = new Date(now);
-  const wd = now.getDay();
-  wStart.setDate(now.getDate() - (wd === 0 ? 6 : wd - 1));
-  wStart.setHours(0,0,0,0);
-  const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+function renderStats(){
+  const now=new Date();
+  const wStart=new Date(now);const wd=now.getDay();wStart.setDate(now.getDate()-(wd===0?6:wd-1));wStart.setHours(0,0,0,0);
+  const mStart=new Date(now.getFullYear(),now.getMonth(),1);
+  const done=db.workouts.filter(w=>w.completed);
+  const week=done.filter(w=>new Date((w.completedAt||w.plannedDate)+'T12:00')>=wStart);
+  const month=done.filter(w=>new Date((w.completedAt||w.plannedDate)+'T12:00')>=mStart);
+  const sumDist=a=>a.reduce((t,w)=>t+(w.actualDist||0),0);
+  const bestPace=done.filter(w=>w.actualPace&&w.actualDist>=1).reduce((b,w)=>(!b||w.actualPace<b)?w.actualPace:b,null);
 
-  const all   = db.sessions;
-  const week  = all.filter(s => new Date(s.date+'T12:00') >= wStart);
-  const month = all.filter(s => new Date(s.date+'T12:00') >= mStart);
-
-  const sumDist = a => a.reduce((t,s) => t+(s.dist||0), 0);
-  const bestPace = all.filter(s => s.pace && s.dist >= 1).reduce((b,s) => (!b||s.pace<b)?s.pace:b, null);
-
-  const bars = Array.from({length:7}, (_,i) => {
-    const ws = new Date(wStart); ws.setDate(ws.getDate() - (6-i)*7);
-    const we = new Date(ws); we.setDate(we.getDate()+7);
-    const dist = sumDist(all.filter(s => { const d=new Date(s.date+'T12:00'); return d>=ws&&d<we; }));
-    const lbl  = ws.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}).replace(' ','');
-    return { dist, lbl, current: i===6 };
+  const bars=Array.from({length:7},(_,i)=>{
+    const ws=new Date(wStart);ws.setDate(ws.getDate()-(6-i)*7);
+    const we=new Date(ws);we.setDate(we.getDate()+7);
+    const dist=sumDist(done.filter(w=>{const d=new Date((w.completedAt||w.plannedDate)+'T12:00');return d>=ws&&d<we;}));
+    return{dist,lbl:ws.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}).replace(' ',''),current:i===6};
   });
+  const maxD=Math.max(...bars.map(b=>b.dist),1);
+  const barHtml=bars.map(b=>`<div class="bar-col">
+    ${b.dist>0?`<div class="bar-val">${fmDist(b.dist)}</div>`:'<div class="bar-val" style="color:transparent">0</div>'}
+    <div class="bar-rect" style="height:${Math.max(3,(b.dist/maxD)*68)}px;background:${b.current?'var(--primary)':'#94A3B8'};opacity:${b.current?'1':'.6'}"></div>
+    <div class="bar-lbl">${b.lbl}</div>
+  </div>`).join('');
 
-  const maxD = Math.max(...bars.map(b=>b.dist), 1);
-  const barHtml = bars.map(b => {
-    const h = Math.max(3, (b.dist/maxD)*68);
-    return `<div class="bar-col">
-      ${b.dist>0?`<div class="bar-val">${fmDist(b.dist)}</div>`:'<div class="bar-val" style="color:transparent">0</div>'}
-      <div class="bar-rect" style="height:${h}px;background:${b.current?'var(--primary)':'#94A3B8'};opacity:${b.current?'1':'.6'}"></div>
-      <div class="bar-lbl">${b.lbl}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('stats-content').innerHTML = `
+  document.getElementById('stats-content').innerHTML=`
     <div class="sec-hdr" style="margin-top:0"><span class="sec-title">Cette semaine</span></div>
     <div class="stats-grid">
       <div class="stat-card"><div class="val">${fmDist(sumDist(week))}</div><div class="lbl">km cette semaine</div></div>
       <div class="stat-card"><div class="val">${week.length}</div><div class="lbl">séances</div></div>
     </div>
-
     <div class="sec-hdr"><span class="sec-title">Ce mois</span></div>
     <div class="stats-grid">
       <div class="stat-card"><div class="val">${fmDist(sumDist(month))}</div><div class="lbl">km ce mois</div></div>
       <div class="stat-card"><div class="val">${month.length}</div><div class="lbl">séances</div></div>
     </div>
-
-    <div class="chart-wrap">
-      <div class="chart-title">Distance hebdomadaire — 7 semaines (km)</div>
-      <div class="bar-chart">${barHtml}</div>
-    </div>
-
+    <div class="chart-wrap"><div class="chart-title">Distance hebdomadaire — 7 semaines (km)</div><div class="bar-chart">${barHtml}</div></div>
     <div class="sec-hdr"><span class="sec-title">All-time</span></div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="val">${fmDist(sumDist(all))}</div><div class="lbl">km au total</div></div>
-      <div class="stat-card"><div class="val">${all.length}</div><div class="lbl">séances total</div></div>
-      <div class="stat-card"><div class="val">${bestPace ? fmPace(bestPace) : '—'}</div><div class="lbl">Meilleure allure</div></div>
-      <div class="stat-card"><div class="val">${db.goals.length}</div><div class="lbl">Objectifs</div></div>
-    </div>
-  `;
+      <div class="stat-card"><div class="val">${fmDist(sumDist(done))}</div><div class="lbl">km au total</div></div>
+      <div class="stat-card"><div class="val">${done.length}</div><div class="lbl">séances effectuées</div></div>
+      <div class="stat-card"><div class="val">${bestPace?fmPace(bestPace):'—'}</div><div class="lbl">Meilleure allure</div></div>
+      <div class="stat-card"><div class="val">${db.workouts.filter(w=>!w.completed).length}</div><div class="lbl">Séances planifiées</div></div>
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════════════
 //  GOAL MODAL
 // ═══════════════════════════════════════════════════════
-function openGoalModal(id = null) {
-  const form = document.getElementById('form-goal');
-  form.reset();
-  document.getElementById('g-id').value = id || '';
-
-  if (id) {
-    const g = db.goals.find(x => x.id === id);
-    if (!g) return;
-    document.getElementById('mg-title').textContent = "Modifier l'objectif";
-    document.getElementById('btn-save-goal').textContent = 'Enregistrer';
+function openGoalModal(id=null){
+  document.getElementById('form-goal').reset();
+  document.getElementById('g-id').value=id||'';
+  if(id){
+    const g=db.goals.find(x=>x.id===id);if(!g)return;
+    document.getElementById('mg-title').textContent="Modifier l'objectif";
+    document.getElementById('btn-save-goal').textContent='Enregistrer';
     pickType(g.type);
-    document.getElementById('g-title').value    = g.title    || '';
-    document.getElementById('g-dist').value     = g.targetDist || '';
-    document.getElementById('g-time').value     = g.targetTime || '';
-    document.getElementById('g-freq-n').value   = g.freqN    || '';
-    document.getElementById('g-freq-p').value   = g.freqP    || 'week';
-    document.getElementById('g-ev-name').value  = g.evName   || '';
-    document.getElementById('g-ev-date').value  = g.evDate   || '';
-    document.getElementById('g-ev-dist').value  = g.evDist   || '';
-    document.getElementById('g-desc').value     = g.desc     || '';
+    document.getElementById('g-title').value=g.title||'';
+    document.getElementById('g-dist').value=g.targetDist||'';
+    document.getElementById('g-time').value=g.targetTime||'';
+    document.getElementById('g-freq-n').value=g.freqN||'';
+    document.getElementById('g-freq-p').value=g.freqP||'week';
+    document.getElementById('g-ev-name').value=g.evName||'';
+    document.getElementById('g-ev-date').value=g.evDate||'';
+    document.getElementById('g-ev-dist').value=g.evDist||'';
+    document.getElementById('g-desc').value=g.desc||'';
   } else {
-    document.getElementById('mg-title').textContent = 'Nouvel objectif';
-    document.getElementById('btn-save-goal').textContent = "Créer l'objectif";
+    document.getElementById('mg-title').textContent='Nouvel objectif';
+    document.getElementById('btn-save-goal').textContent="Créer l'objectif";
     pickType('performance');
   }
-
   openModal('modal-goal');
 }
 
-function pickType(t) {
-  document.getElementById('g-type').value = t;
-  document.querySelectorAll('.type-opt').forEach(el => el.classList.toggle('sel', el.dataset.t === t));
-  ['performance','frequency','event','free'].forEach(k => {
-    document.getElementById(`fs-${k}`).classList.toggle('on', k === t);
-  });
+function pickType(t){
+  document.getElementById('g-type').value=t;
+  document.querySelectorAll('.type-opt').forEach(el=>el.classList.toggle('sel',el.dataset.t===t));
+  ['performance','frequency','event','free'].forEach(k=>document.getElementById(`fs-${k}`).classList.toggle('on',k===t));
 }
 
-document.getElementById('form-goal').addEventListener('submit', e => {
+document.getElementById('form-goal').addEventListener('submit',e=>{
   e.preventDefault();
-  const id   = document.getElementById('g-id').value || uid();
-  const type = document.getElementById('g-type').value;
-
-  const goal = {
-    id, type,
-    title:      document.getElementById('g-title').value.trim(),
-    targetDist: parseFloat(document.getElementById('g-dist').value)    || null,
-    targetTime: parseInt(document.getElementById('g-time').value)      || null,
-    freqN:      parseInt(document.getElementById('g-freq-n').value)    || null,
-    freqP:      document.getElementById('g-freq-p').value,
-    evName:     document.getElementById('g-ev-name').value.trim()      || null,
-    evDate:     document.getElementById('g-ev-date').value             || null,
-    evDist:     parseFloat(document.getElementById('g-ev-dist').value) || null,
-    desc:       document.getElementById('g-desc').value.trim()         || null,
-    createdAt:  new Date().toISOString(),
-  };
-
-  const idx = db.goals.findIndex(x => x.id === id);
-  if (idx >= 0) { goal.createdAt = db.goals[idx].createdAt; db.goals[idx] = goal; }
-  else db.goals.push(goal);
-
-  save();
-  closeModal('modal-goal');
-  showView('goals');
+  const id=document.getElementById('g-id').value||uid();
+  const goal={id,type:document.getElementById('g-type').value,title:document.getElementById('g-title').value.trim(),
+    targetDist:parseFloat(document.getElementById('g-dist').value)||null,targetTime:parseInt(document.getElementById('g-time').value)||null,
+    freqN:parseInt(document.getElementById('g-freq-n').value)||null,freqP:document.getElementById('g-freq-p').value,
+    evName:document.getElementById('g-ev-name').value.trim()||null,evDate:document.getElementById('g-ev-date').value||null,
+    evDist:parseFloat(document.getElementById('g-ev-dist').value)||null,desc:document.getElementById('g-desc').value.trim()||null,
+    createdAt:new Date().toISOString()};
+  const idx=db.goals.findIndex(x=>x.id===id);
+  if(idx>=0){goal.createdAt=db.goals[idx].createdAt;db.goals[idx]=goal;}else db.goals.push(goal);
+  save();closeModal('modal-goal');showView('goals');
 });
 
-function deleteGoal(id) {
-  const g = db.goals.find(x => x.id === id);
-  if (!g) return;
-  const sc = goalSessions(id).length;
-  const msg = sc ? `Supprimer "${g.title}" et ses ${sc} séance(s) ?` : `Supprimer "${g.title}" ?`;
-  if (!confirm(msg)) return;
-  db.goals    = db.goals.filter(x => x.id !== id);
-  db.sessions = db.sessions.filter(x => x.goalId !== id);
-  save();
-  goBack();
+function deleteGoal(id){
+  const g=db.goals.find(x=>x.id===id);if(!g)return;
+  const wc=goalWorkouts(id).length;
+  if(!confirm(`Supprimer "${g.title}"${wc?` et ses ${wc} séance(s)`:''}?`))return;
+  db.goals=db.goals.filter(x=>x.id!==id);
+  db.workouts=db.workouts.filter(x=>x.goalId!==id);
+  save();goBack();
 }
 
 // ═══════════════════════════════════════════════════════
-//  SESSION MODAL
+//  WORKOUT MODAL + SEGMENTS
 // ═══════════════════════════════════════════════════════
-function openSessionModal(preGoalId = null) {
-  if (!db.goals.length) { alert("Crée d'abord un objectif avant d'ajouter une séance."); return; }
+let currentSegs=[];
 
-  document.getElementById('form-session').reset();
-  document.getElementById('s-id').value       = '';
-  document.getElementById('ms-title').textContent        = 'Nouvelle séance';
-  document.getElementById('btn-save-sess').textContent   = 'Enregistrer la séance';
-  document.getElementById('pace-box').textContent        = '— Saisir distance et durée';
-  document.getElementById('s-date').value     = new Date().toISOString().slice(0,10);
+function openWorkoutModal(preGoalId=null, workoutId=null){
+  if(!db.goals.length){alert("Crée d'abord un objectif.");return;}
+  const form=document.getElementById('form-workout');form.reset();
+  document.getElementById('w-id').value=workoutId||'';
+  document.getElementById('w-goal-id').value=preGoalId||'';
+  const goalSel=document.getElementById('w-goal-sel');
+  goalSel.innerHTML=db.goals.map(g=>`<option value="${g.id}" ${g.id===(preGoalId||activeGoalId)?'selected':''}>${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</option>`).join('');
 
-  const sel = document.getElementById('s-goal');
-  sel.innerHTML = db.goals.map(g =>
-    `<option value="${g.id}" ${g.id===preGoalId?'selected':''}>${TYPE_META[g.type]?.icon||'✨'} ${esc(g.title)}</option>`
-  ).join('');
-
-  openModal('modal-session');
-}
-
-function calcPace() {
-  const dist = parseFloat(document.getElementById('s-dist').value);
-  const dur  = parseFloat(document.getElementById('s-dur').value);
-  const box  = document.getElementById('pace-box');
-  if (dist > 0 && dur > 0) {
-    box.textContent = fmPace(dur / dist) + '/km';
-    box.style.color = 'var(--text)';
+  if(workoutId){
+    const w=db.workouts.find(x=>x.id===workoutId);if(!w)return;
+    document.getElementById('mw-title').textContent='Modifier la séance';
+    document.getElementById('btn-save-workout').textContent='Enregistrer';
+    document.getElementById('w-date').value=w.plannedDate||'';
+    document.getElementById('w-title').value=w.title||'';
+    document.getElementById('w-notes').value=w.notes||'';
+    goalSel.value=w.goalId;
+    currentSegs=JSON.parse(JSON.stringify(w.segments||[]));
   } else {
-    box.textContent = '— Saisir distance et durée';
-    box.style.color = 'var(--text-2)';
+    document.getElementById('mw-title').textContent='Nouvelle séance';
+    document.getElementById('btn-save-workout').textContent='Planifier la séance';
+    document.getElementById('w-date').value=new Date().toISOString().slice(0,10);
+    currentSegs=[
+      {id:uid(),type:'warmup',label:'',duration:'',pace:''},
+      {id:uid(),type:'main',label:'',duration:'',pace:''},
+      {id:uid(),type:'cooldown',label:'',duration:'',pace:''},
+    ];
   }
+  renderSegList();
+  openModal('modal-workout');
 }
 
-document.getElementById('form-session').addEventListener('submit', e => {
-  e.preventDefault();
-  const dist = parseFloat(document.getElementById('s-dist').value) || 0;
-  const dur  = parseFloat(document.getElementById('s-dur').value)  || 0;
-  const id   = document.getElementById('s-id').value || uid();
+function renderSegList(){
+  const container=document.getElementById('seg-list');
+  if(!currentSegs.length){container.innerHTML='';return;}
+  container.innerHTML=currentSegs.map((s,i)=>{
+    const sm=SEG_META[s.type]||SEG_META.main;
+    return`<div class="seg-form-row">
+      <div class="seg-form-header">
+        <select class="seg-type-badge ${s.type}" onchange="updateSegType(${i},this.value)" style="border:none;cursor:pointer;font-family:inherit;font-weight:700">
+          <option value="warmup" ${s.type==='warmup'?'selected':''}>🔥 Échauffement</option>
+          <option value="main"   ${s.type==='main'?'selected':''}>🏃 Trançon</option>
+          <option value="cooldown" ${s.type==='cooldown'?'selected':''}>❄️ Retour au calme</option>
+        </select>
+        <button type="button" class="seg-del-btn" onclick="removeSeg(${i})">✕</button>
+      </div>
+      <div class="seg-form-fields">
+        <div class="seg-field"><label>Durée (min)</label><input type="number" min="1" value="${esc(s.duration)}" placeholder="10" oninput="updateSeg(${i},'duration',this.value)"></div>
+        <div class="seg-field"><label>Allure cible</label><input type="text" value="${esc(s.pace)}" placeholder="5:30" oninput="updateSeg(${i},'pace',this.value)"></div>
+      </div>
+      <input class="seg-notes-input" type="text" value="${esc(s.label)}" placeholder="Description du trançon (optionnel)" oninput="updateSeg(${i},'label',this.value)">
+    </div>`;
+  }).join('');
+}
 
-  const sess = {
-    id,
-    goalId: document.getElementById('s-goal').value,
-    date:   document.getElementById('s-date').value,
-    loc:    document.getElementById('s-loc').value.trim() || '',
-    dist, dur,
-    pace:   (dist > 0 && dur > 0) ? dur / dist : null,
-    notes:  document.getElementById('s-notes').value.trim() || '',
+function addSeg(type){currentSegs.push({id:uid(),type,label:'',duration:'',pace:''});renderSegList();}
+function removeSeg(i){currentSegs.splice(i,1);renderSegList();}
+function updateSeg(i,field,val){if(currentSegs[i])currentSegs[i][field]=val;}
+function updateSegType(i,type){
+  if(!currentSegs[i])return;
+  currentSegs[i].type=type;
+  // Update select background
+  const rows=document.querySelectorAll('.seg-type-badge');
+  if(rows[i]){rows[i].className=`seg-type-badge ${type}`;rows[i].style.cssText='border:none;cursor:pointer;font-family:inherit;font-weight:700';}
+}
+
+document.getElementById('form-workout').addEventListener('submit',e=>{
+  e.preventDefault();
+  const id=document.getElementById('w-id').value||uid();
+  const goalId=document.getElementById('w-goal-sel').value;
+  const workout={
+    id, goalId,
+    title:   document.getElementById('w-title').value.trim(),
+    plannedDate: document.getElementById('w-date').value,
+    segments: currentSegs.filter(s=>s.duration||s.pace||s.label),
+    notes:   document.getElementById('w-notes').value.trim()||'',
+    completed:false, completedAt:null, stravaId:null, stravaName:null,
+    actualDist:null, actualDur:null, actualPace:null,
     createdAt: new Date().toISOString(),
   };
-
-  const idx = db.sessions.findIndex(x => x.id === id);
-  if (idx >= 0) { sess.createdAt = db.sessions[idx].createdAt; db.sessions[idx] = sess; }
-  else db.sessions.push(sess);
-
-  save();
-  closeModal('modal-session');
-  showView(view);
+  const idx=db.workouts.findIndex(x=>x.id===id);
+  if(idx>=0){const old=db.workouts[idx];workout.completed=old.completed;workout.completedAt=old.completedAt;workout.stravaId=old.stravaId;workout.stravaName=old.stravaName;workout.actualDist=old.actualDist;workout.actualDur=old.actualDur;workout.actualPace=old.actualPace;workout.createdAt=old.createdAt;db.workouts[idx]=workout;}
+  else db.workouts.push(workout);
+  save();closeModal('modal-workout');
+  if(view==='goal-detail')renderGoalDetail();else showView(view);
 });
 
-function deleteSession(id) {
-  if (!confirm('Supprimer cette séance ?')) return;
-  db.sessions = db.sessions.filter(x => x.id !== id);
-  save();
-  if (view === 'goal-detail') renderGoalDetail();
-  else renderAllSessions();
+function deleteWorkout(id){
+  if(!confirm('Supprimer cette séance ?'))return;
+  db.workouts=db.workouts.filter(x=>x.id!==id);save();
+  if(view==='goal-detail')renderGoalDetail();else renderAllWorkouts();
 }
 
 // ═══════════════════════════════════════════════════════
-//  MODAL HELPERS
+//  MARK DONE MODAL
 // ═══════════════════════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openDoneModal(workoutId){
+  const w=db.workouts.find(x=>x.id===workoutId);
+  if(!w||w.completed)return;
+  document.getElementById('done-workout-id').value=workoutId;
+  document.getElementById('done-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('done-dist').value='';
+  document.getElementById('done-dur').value='';
+  document.getElementById('done-notes').value='';
+  document.getElementById('done-pace-box').textContent='— Saisir distance et durée';
+  document.getElementById('done-pace-box').style.color='var(--text-2)';
 
-document.querySelectorAll('.overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-});
+  // Pre-fill estimated duration from segments
+  const totalSeg=(w.segments||[]).reduce((t,s)=>t+(parseInt(s.duration)||0),0);
+  if(totalSeg)document.getElementById('done-dur').value=totalSeg;
 
-// ═══════════════════════════════════════════════════════
-//  STRAVA OAUTH
-// ═══════════════════════════════════════════════════════
-const STRAVA_AUTH  = 'https://www.strava.com/oauth/authorize';
-const STRAVA_TOKEN = 'https://www.strava.com/oauth/token';
-const STRAVA_API   = 'https://www.strava.com/api/v3';
-
-function connectStrava() {
-  const clientId = document.getElementById('strava-client-id').value.trim();
-  const secret   = document.getElementById('strava-client-secret').value.trim();
-
-  if (!clientId || !secret) {
-    alert('Saisis ton Client ID et Client Secret Strava.');
-    return;
-  }
-
-  db.strava.clientId     = clientId;
-  db.strava.clientSecret = secret;
-  save();
-
-  const redirectUri = window.location.origin + window.location.pathname;
-  const url = `${STRAVA_AUTH}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=activity:read_all&approval_prompt=auto`;
-  window.location.href = url;
-}
-
-async function handleOAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code   = params.get('code');
-  const error  = params.get('error');
-
-  // Clean URL immediately
-  window.history.replaceState({}, '', window.location.pathname);
-
-  if (error || !code) return;
-
-  const btn = document.getElementById('btn-sync');
-  if (btn) { btn.innerHTML = '<span class="spinner"></span> Connexion…'; btn.disabled = true; }
-
-  try {
-    const res = await fetch(STRAVA_TOKEN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id:     db.strava.clientId,
-        client_secret: db.strava.clientSecret,
-        code,
-        grant_type:    'authorization_code'
-      })
-    });
-
-    const data = await res.json();
-
-    if (!data.access_token) {
-      alert('Erreur Strava : ' + (data.message || 'Token invalide'));
-      return;
-    }
-
-    db.strava.accessToken  = data.access_token;
-    db.strava.refreshToken = data.refresh_token;
-    db.strava.tokenExpiry  = (data.expires_at || 0) * 1000;
-    db.strava.athlete      = data.athlete || null;
-    save();
-
-    updateSettingsModal();
-    openModal('modal-settings');
-
-    // Auto-sync after connecting
-    await syncStrava();
-  } catch (err) {
-    alert('Erreur de connexion Strava. Vérifie ton Client ID / Secret.');
-  }
-}
-
-async function getValidToken() {
-  const st = db.strava;
-  if (!st.accessToken) return null;
-
-  if (Date.now() >= st.tokenExpiry - 60000) {
-    try {
-      const res = await fetch(STRAVA_TOKEN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id:     st.clientId,
-          client_secret: st.clientSecret,
-          refresh_token: st.refreshToken,
-          grant_type:    'refresh_token'
-        })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        db.strava.accessToken  = data.access_token;
-        db.strava.refreshToken = data.refresh_token;
-        db.strava.tokenExpiry  = (data.expires_at || 0) * 1000;
-        save();
+  // Strava pending dropdown
+  const pending=db.strava.pending||[];
+  const stravaGroup=document.getElementById('done-strava-group');
+  const stravaSel=document.getElementById('done-strava-sel');
+  if(pending.length){
+    stravaGroup.style.display='';
+    stravaSel.innerHTML=`<option value="">— Ne pas lier</option>`+pending.map(a=>`<option value="${a.id}">${esc(a.name)} · ${fmDateShort(a.date)} · ${fmDist(a.distance)}km</option>`).join('');
+    stravaSel.onchange=()=>{
+      const sid=parseInt(stravaSel.value);
+      const act=pending.find(a=>a.id===sid);
+      if(act){
+        document.getElementById('done-dist').value=act.distance||'';
+        document.getElementById('done-dur').value=act.duration||'';
+        calcDonePace();
       }
-    } catch { return null; }
-  }
+    };
+  } else stravaGroup.style.display='none';
 
+  openModal('modal-done');
+}
+
+function calcDonePace(){
+  const dist=parseFloat(document.getElementById('done-dist').value);
+  const dur=parseFloat(document.getElementById('done-dur').value);
+  const box=document.getElementById('done-pace-box');
+  if(dist>0&&dur>0){box.textContent=fmPace(dur/dist)+'/km';box.style.color='var(--text)';}
+  else{box.textContent='— Saisir distance et durée';box.style.color='var(--text-2)';}
+}
+
+function confirmDone(){
+  const id=document.getElementById('done-workout-id').value;
+  const w=db.workouts.find(x=>x.id===id);if(!w)return;
+  const dist=parseFloat(document.getElementById('done-dist').value)||null;
+  const dur=parseFloat(document.getElementById('done-dur').value)||null;
+  const stravaId=parseInt(document.getElementById('done-strava-sel').value)||null;
+  const pending=db.strava.pending||[];
+  const act=stravaId?pending.find(a=>a.id===stravaId):null;
+
+  w.completed=true;
+  w.completedAt=document.getElementById('done-date').value||new Date().toISOString().slice(0,10);
+  w.actualDist=act?act.distance:dist;
+  w.actualDur=act?act.duration:dur;
+  w.actualPace=(w.actualDist&&w.actualDur)?w.actualDur/w.actualDist:null;
+  w.notes=document.getElementById('done-notes').value.trim()||w.notes;
+  if(act){w.stravaId=act.id;w.stravaName=act.name;db.strava.pending=pending.filter(a=>a.id!==stravaId);}
+
+  save();closeModal('modal-done');updateBadge();
+  if(view==='goal-detail')renderGoalDetail();else renderAllWorkouts();
+  if(view==='goals')renderGoals();
+}
+
+function unmarkDone(id){
+  const w=db.workouts.find(x=>x.id===id);if(!w)return;
+  if(!confirm('Marquer cette séance comme non effectuée ?'))return;
+  w.completed=false;w.completedAt=null;w.actualDist=null;w.actualDur=null;w.actualPace=null;w.stravaId=null;w.stravaName=null;
+  save();
+  if(view==='goal-detail')renderGoalDetail();else renderAllWorkouts();
+}
+
+// ═══════════════════════════════════════════════════════
+//  STRAVA
+// ═══════════════════════════════════════════════════════
+const STRAVA_AUTH='https://www.strava.com/oauth/authorize';
+const STRAVA_TOKEN='https://www.strava.com/oauth/token';
+const STRAVA_API='https://www.strava.com/api/v3';
+
+function connectStrava(){
+  const cid=document.getElementById('strava-client-id').value.trim();
+  const sec=document.getElementById('strava-client-secret').value.trim();
+  if(!cid||!sec){alert('Saisis ton Client ID et Client Secret Strava.');return;}
+  db.strava.clientId=cid;db.strava.clientSecret=sec;save();
+  const ru=window.location.origin+window.location.pathname;
+  window.location.href=`${STRAVA_AUTH}?client_id=${cid}&redirect_uri=${encodeURIComponent(ru)}&response_type=code&scope=activity:read_all&approval_prompt=auto`;
+}
+
+async function handleOAuthCallback(){
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  window.history.replaceState({},'',window.location.pathname);
+  if(!code)return;
+  try{
+    const res=await fetch(STRAVA_TOKEN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_id:db.strava.clientId,client_secret:db.strava.clientSecret,code,grant_type:'authorization_code'})});
+    const data=await res.json();
+    if(!data.access_token){alert('Erreur Strava : '+(data.message||'Token invalide'));return;}
+    db.strava.accessToken=data.access_token;db.strava.refreshToken=data.refresh_token;
+    db.strava.tokenExpiry=(data.expires_at||0)*1000;db.strava.athlete=data.athlete||null;save();
+    updateSettingsModal();openModal('modal-settings');await syncStrava();
+  }catch(e){alert('Erreur de connexion Strava.');}
+}
+
+async function getValidToken(){
+  const st=db.strava;if(!st.accessToken)return null;
+  if(Date.now()>=st.tokenExpiry-60000){
+    try{
+      const res=await fetch(STRAVA_TOKEN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_id:st.clientId,client_secret:st.clientSecret,refresh_token:st.refreshToken,grant_type:'refresh_token'})});
+      const data=await res.json();
+      if(data.access_token){db.strava.accessToken=data.access_token;db.strava.refreshToken=data.refresh_token;db.strava.tokenExpiry=(data.expires_at||0)*1000;save();}
+    }catch{return null;}
+  }
   return db.strava.accessToken;
 }
 
-async function syncStrava() {
-  const btn = document.getElementById('btn-sync');
-  if (btn) { btn.innerHTML = '<span class="spinner"></span> Synchronisation…'; btn.disabled = true; }
+async function syncStrava(){
+  const btn=document.getElementById('btn-sync');
+  if(btn){btn.innerHTML='<span class="spinner"></span> Synchronisation…';btn.disabled=true;}
+  try{
+    const token=await getValidToken();if(!token)throw new Error('no token');
+    const oneMonthAgo=Math.floor((Date.now()-30*86400000)/1000);
+    const after=db.strava.lastSyncTime?Math.floor(db.strava.lastSyncTime/1000)-86400:oneMonthAgo;
+    const res=await fetch(`${STRAVA_API}/athlete/activities?after=${after}&per_page=50`,{headers:{Authorization:`Bearer ${token}`}});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const activities=await res.json();if(!Array.isArray(activities))throw new Error('invalid');
+    const linked=new Set([...db.workouts.filter(w=>w.stravaId).map(w=>w.stravaId)]);
+    const pendingSet=new Set((db.strava.pending||[]).map(a=>a.id));
+    const newRuns=activities.filter(a=>(a.type==='Run'||a.sport_type==='Run')&&!linked.has(a.id)&&!pendingSet.has(a.id))
+      .map(a=>({id:a.id,name:a.name,date:a.start_date_local.slice(0,10),distance:parseFloat((a.distance/1000).toFixed(2)),duration:Math.round(a.moving_time/60),pace:a.average_speed>0?1000/(a.average_speed*60):null,elevation:a.total_elevation_gain||0}));
+    db.strava.pending=[...(db.strava.pending||[]),...newRuns];db.strava.lastSyncTime=Date.now();save();
+    const msg=newRuns.length?`${newRuns.length} run${newRuns.length>1?'s':''} importé${newRuns.length>1?'s':''}!`:'Aucune nouvelle activité.';
+    if(btn){btn.innerHTML='✓ '+msg;setTimeout(()=>{btn.innerHTML='⟳ Synchroniser maintenant';btn.disabled=false;},2500);}
+    updateSettingsModal();updateBadge();
+    if(view==='workouts')renderAllWorkouts();
+  }catch(e){if(btn){btn.innerHTML='⟳ Synchroniser maintenant';btn.disabled=false;}alert('Erreur synchro: '+e.message);}
+}
 
-  try {
-    const token = await getValidToken();
-    if (!token) throw new Error('no token');
+function linkStravaActivity(activityId){
+  const sel=document.getElementById(`sel-${activityId}`);
+  const goalId=sel?sel.value:null;if(!goalId)return;
+  const pending=db.strava.pending||[];
+  const act=pending.find(a=>a.id===activityId);if(!act)return;
+  db.workouts.push({id:uid(),goalId,title:act.name,plannedDate:act.date,segments:[],notes:'',completed:true,completedAt:act.date,stravaId:act.id,stravaName:act.name,actualDist:act.distance,actualDur:act.duration,actualPace:act.pace,createdAt:new Date().toISOString()});
+  db.strava.pending=pending.filter(a=>a.id!==activityId);save();updateBadge();renderAllWorkouts();
+}
 
-    const oneMonthAgo = Math.floor((Date.now() - 30 * 86400000) / 1000);
-    const after = db.strava.lastSyncTime
-      ? Math.floor(db.strava.lastSyncTime / 1000) - 86400
-      : oneMonthAgo;
+function discardStravaActivity(activityId){
+  db.strava.pending=(db.strava.pending||[]).filter(a=>a.id!==activityId);save();updateBadge();renderAllWorkouts();
+}
 
-    const res = await fetch(
-      `${STRAVA_API}/athlete/activities?after=${after}&per_page=50`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+function disconnectStrava(){
+  if(!confirm('Déconnecter Strava ? Les séances déjà importées sont conservées.'))return;
+  db.strava={...DEFAULT_STRAVA};save();updateSettingsModal();updateBadge();
+}
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const activities = await res.json();
-
-    if (!Array.isArray(activities)) throw new Error('invalid response');
-
-    // Filter runs only, not already linked or pending
-    const linked  = new Set(db.sessions.map(s => s.stravaId).filter(Boolean));
-    const pending = new Set((db.strava.pending || []).map(a => a.id));
-
-    const newRuns = activities
-      .filter(a => (a.type === 'Run' || a.sport_type === 'Run'))
-      .filter(a => !linked.has(a.id) && !pending.has(a.id))
-      .map(a => ({
-        id:        a.id,
-        name:      a.name,
-        date:      a.start_date_local.slice(0,10),
-        distance:  parseFloat((a.distance / 1000).toFixed(2)),
-        duration:  Math.round(a.moving_time / 60),
-        pace:      a.average_speed > 0 ? 1000 / (a.average_speed * 60) : null,
-        elevation: a.total_elevation_gain || 0,
-      }));
-
-    db.strava.pending      = [...(db.strava.pending || []), ...newRuns];
-    db.strava.lastSyncTime = Date.now();
-    save();
-
-    const msg = newRuns.length
-      ? `${newRuns.length} nouveau${newRuns.length > 1 ? 'x' : ''} run${newRuns.length > 1 ? 's' : ''} importé${newRuns.length > 1 ? 's' : ''} !`
-      : 'Aucune nouvelle activité.';
-
-    if (btn) {
-      btn.innerHTML = '✓ ' + msg;
-      setTimeout(() => {
-        btn.innerHTML = '⟳ Synchroniser maintenant';
-        btn.disabled  = false;
-      }, 2500);
-    }
-
-    updateSettingsModal();
-    updateBadge();
-    if (view === 'sessions') renderAllSessions();
-  } catch (err) {
-    if (btn) { btn.innerHTML = '⟳ Synchroniser maintenant'; btn.disabled = false; }
-    alert('Erreur de synchronisation : ' + err.message);
+function updateSettingsModal(){
+  const st=db.strava,conn=!!st.accessToken;
+  document.getElementById('strava-connected-block').style.display=conn?'':'none';
+  document.getElementById('strava-setup-block').style.display=conn?'none':'';
+  if(conn&&st.athlete){
+    const a=st.athlete,av=document.getElementById('athlete-avatar');
+    if(a.profile&&a.profile!=='avatar/athlete/large.png')av.innerHTML=`<img src="${esc(a.profile)}" alt="">`;
+    else av.textContent=(a.firstname||'S')[0].toUpperCase();
+    document.getElementById('athlete-name').textContent=`${a.firstname||''} ${a.lastname||''}`.trim()||'Athlète';
   }
-}
-
-function linkStravaActivity(activityId) {
-  const sel    = document.getElementById(`sel-${activityId}`);
-  const goalId = sel ? sel.value : null;
-  if (!goalId) return;
-
-  const pending  = db.strava.pending || [];
-  const activity = pending.find(a => a.id === activityId);
-  if (!activity) return;
-
-  db.sessions.push({
-    id:        uid(),
-    goalId,
-    date:      activity.date,
-    loc:       activity.name,
-    dist:      activity.distance,
-    dur:       activity.duration,
-    pace:      activity.pace,
-    notes:     '',
-    stravaId:  activity.id,
-    createdAt: new Date().toISOString(),
-  });
-
-  db.strava.pending = pending.filter(a => a.id !== activityId);
-  save();
-  updateBadge();
-  renderAllSessions();
-  if (view === 'goals') renderGoals();
-}
-
-function discardStravaActivity(activityId) {
-  db.strava.pending = (db.strava.pending || []).filter(a => a.id !== activityId);
-  save();
-  updateBadge();
-  renderAllSessions();
-}
-
-function disconnectStrava() {
-  if (!confirm('Déconnecter Strava ? Les séances déjà importées sont conservées.')) return;
-  db.strava = { ...DEFAULT_STRAVA };
-  save();
-  updateSettingsModal();
-  updateBadge();
+  if(st.lastSyncTime){const d=new Date(st.lastSyncTime);document.getElementById('sync-info').textContent=`Dernière synchro : ${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`;}
+  if(!conn&&st.clientId){document.getElementById('strava-client-id').value=st.clientId;document.getElementById('strava-client-secret').value=st.clientSecret;}
 }
 
 // ═══════════════════════════════════════════════════════
-//  SETTINGS MODAL
+//  MODALS
 // ═══════════════════════════════════════════════════════
-function updateSettingsModal() {
-  const st        = db.strava;
-  const connected = !!st.accessToken;
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});});
 
-  document.getElementById('strava-connected-block').style.display = connected ? '' : 'none';
-  document.getElementById('strava-setup-block').style.display     = connected ? 'none' : '';
+// SW
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
-  if (connected && st.athlete) {
-    const avatar = document.getElementById('athlete-avatar');
-    const a = st.athlete;
-    if (a.profile && a.profile !== 'avatar/athlete/large.png') {
-      avatar.innerHTML = `<img src="${esc(a.profile)}" alt="">`;
-    } else {
-      avatar.textContent = (a.firstname || 'S')[0].toUpperCase();
-    }
-    document.getElementById('athlete-name').textContent = `${a.firstname || ''} ${a.lastname || ''}`.trim() || 'Athlète';
-  }
-
-  if (st.lastSyncTime) {
-    const d = new Date(st.lastSyncTime);
-    document.getElementById('sync-info').textContent =
-      `Dernière synchro : ${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`;
-  }
-
-  // Pre-fill credentials if available
-  if (!connected && st.clientId) {
-    document.getElementById('strava-client-id').value     = st.clientId;
-    document.getElementById('strava-client-secret').value = st.clientSecret;
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-//  SERVICE WORKER
-// ═══════════════════════════════════════════════════════
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
-}
-
-// ═══════════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════════
-load();
-handleOAuthCallback(); // handles ?code= redirect from Strava
-updateSettingsModal();
-updateBadge();
-showView('goals');
+// INIT
+load();handleOAuthCallback();updateSettingsModal();updateBadge();showView('goals');
 </script>
 </body>
 </html>
