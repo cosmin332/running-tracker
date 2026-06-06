@@ -236,6 +236,7 @@
     <div id="view-goals" class="view active"><div id="goals-list"></div></div>
     <div id="view-goal-detail" class="view"><div id="goal-detail"></div></div>
     <div id="view-workouts" class="view"><div id="all-workouts"></div></div>
+    <div id="view-mobility" class="view"><div id="mobility-list"></div></div>
     <div id="view-stats" class="view"><div id="stats-content"></div></div>
   </main>
 
@@ -248,6 +249,9 @@
     <button class="nav-tab" id="tab-workouts" onclick="showView('workouts')">
       <span class="icon">📋</span>Séances
       <span class="nav-badge" id="workouts-badge"></span>
+    </button>
+    <button class="nav-tab" id="tab-mobility" onclick="showView('mobility')">
+      <span class="icon">🧘</span>Mobilité
     </button>
     <button class="nav-tab" id="tab-stats" onclick="showView('stats')">
       <span class="icon">📊</span>Stats
@@ -383,6 +387,28 @@
   </div>
 </div>
 
+<!-- Modal: Mobility -->
+<div class="overlay" id="modal-mobility">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="mm-title">Nouvelle routine</div>
+    <form id="form-mobility">
+      <input type="hidden" id="m-id">
+      <div class="fgrp">
+        <label class="flbl">Titre</label>
+        <input class="finp" id="m-title" type="text" placeholder="Ex: Étirements hanches, Foam roller…" required>
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Notes libres</label>
+        <textarea class="ftxt" id="m-notes" placeholder="Exercices, durée, conseils…" style="min-height:140px"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+      <button type="button" class="btn btn-ghost" onclick="closeModal('modal-mobility')">Annuler</button>
+      <button type="button" class="btn btn-ghost" id="btn-delete-mobility" style="display:none;color:#DC2626" onclick="deleteMobility(document.getElementById('m-id').value)">Supprimer</button>
+    </form>
+  </div>
+</div>
+
 <!-- Modal: Settings -->
 <div class="overlay" id="modal-settings">
   <div class="modal">
@@ -435,7 +461,7 @@
 // ═══════════════════════════════════════════════════════
 const KEY = 'runtrack_v2';
 const DEFAULT_STRAVA = { clientId:'', clientSecret:'', accessToken:'', refreshToken:'', tokenExpiry:0, athlete:null, lastSyncTime:0, pending:[] };
-let db = { goals:[], workouts:[], strava:{...DEFAULT_STRAVA} };
+let db = { goals:[], workouts:[], mobility:[], strava:{...DEFAULT_STRAVA} };
 
 function load() {
   try {
@@ -459,7 +485,7 @@ function load() {
       }
     }
     if (stored) {
-      db = { goals: stored.goals||[], workouts: stored.workouts||[], strava:{...DEFAULT_STRAVA,...(stored.strava||{})} };
+      db = { goals: stored.goals||[], workouts: stored.workouts||[], mobility: stored.mobility||[], strava:{...DEFAULT_STRAVA,...(stored.strava||{})} };
     }
   } catch { db = { goals:[], workouts:[], strava:{...DEFAULT_STRAVA} }; }
 }
@@ -492,10 +518,11 @@ function showView(v) {
   } else {
     document.getElementById(`view-${v}`).classList.add('active');
     document.getElementById(`tab-${v}`)?.classList.add('active');
-    title.textContent={goals:'RunTrack',workouts:'Mes séances',stats:'Statistiques'}[v]||'RunTrack';
+    title.textContent={goals:'RunTrack',workouts:'Mes séances',mobility:'Mobilité & Récup',stats:'Statistiques'}[v]||'RunTrack';
     if(v==='stats') fab.style.display='none';
     if(v==='goals')    renderGoals();
     if(v==='workouts') renderAllWorkouts();
+    if(v==='mobility') renderMobility();
     if(v==='stats')    renderStats();
   }
   updateBadge();
@@ -503,7 +530,7 @@ function showView(v) {
 }
 
 function goBack() { activeGoalId=null; showView('goals'); }
-function fabClick() { if(view==='goals') openGoalModal(); else openWorkoutModal(activeGoalId); }
+function fabClick() { if(view==='goals') openGoalModal(); else if(view==='mobility') openMobilityModal(); else openWorkoutModal(activeGoalId); }
 function editCurrentGoal() { if(activeGoalId) openGoalModal(activeGoalId); }
 
 function updateBadge() {
@@ -1356,6 +1383,55 @@ function loadPlan(){
   db.goals=JSON.parse(JSON.stringify(PLAN_SUB50.goals));
   db.workouts=JSON.parse(JSON.stringify(PLAN_SUB50.workouts));
   save();closeModal('modal-settings');showView('goals');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILITY
+// ═══════════════════════════════════════════════════════
+function renderMobility(){
+  const el=document.getElementById('mobility-list');
+  if(!db.mobility.length){
+    el.innerHTML=`<div class="empty"><div class="em">🧘</div><h3>Aucune routine</h3><p>Ajoute tes exercices de mobilité et récupération en appuyant sur +.</p></div>`;
+    return;
+  }
+  const sorted=[...db.mobility].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  el.innerHTML=sorted.map(m=>`
+    <div class="card" onclick="openMobilityModal('${m.id}')">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:26px;line-height:1;flex-shrink:0">🧘</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px">${esc(m.title)}</div>
+          ${m.notes?`<div style="font-size:13px;color:var(--text-2);white-space:pre-wrap;line-height:1.5">${esc(m.notes)}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openMobilityModal(id){
+  const m=id?db.mobility.find(x=>x.id===id):null;
+  document.getElementById('mm-title').textContent=m?'Modifier la routine':'Nouvelle routine';
+  document.getElementById('m-id').value=m?m.id:'';
+  document.getElementById('m-title').value=m?m.title:'';
+  document.getElementById('m-notes').value=m?m.notes:'';
+  document.getElementById('btn-delete-mobility').style.display=m?'':'none';
+  document.getElementById('form-mobility').onsubmit=e=>{
+    e.preventDefault();
+    const title=document.getElementById('m-title').value.trim();
+    if(!title)return;
+    if(m){
+      m.title=title; m.notes=document.getElementById('m-notes').value.trim();
+    } else {
+      db.mobility.push({id:uid(),title,notes:document.getElementById('m-notes').value.trim(),createdAt:new Date().toISOString()});
+    }
+    save(); closeModal('modal-mobility'); renderMobility();
+  };
+  openModal('modal-mobility');
+}
+
+function deleteMobility(id){
+  if(!confirm('Supprimer cette routine ?'))return;
+  db.mobility=db.mobility.filter(m=>m.id!==id);
+  save(); closeModal('modal-mobility'); renderMobility();
 }
 
 function exportData(){
