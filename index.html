@@ -418,6 +418,13 @@
       <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.5">Charge les <strong>23 séances Sub-50</strong> préprogrammées sur 8 semaines (lun/mer/sam dès le 9 juin).</p>
       <button class="btn btn-primary" onclick="loadPlan()">🗓 Charger le plan Sub-50</button>
     </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Données</div>
+      <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.5">Sauvegarde tes objectifs et séances dans un fichier. Utile avant toute mise à jour.</p>
+      <button class="btn btn-primary" onclick="exportData()" style="margin-bottom:8px">⬇️ Exporter mes données</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">⬆️ Restaurer une sauvegarde</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+    </div>
     <button class="btn btn-ghost" onclick="closeModal('modal-settings')">Fermer</button>
   </div>
 </div>
@@ -1349,6 +1356,42 @@ function loadPlan(){
   db.goals=JSON.parse(JSON.stringify(PLAN_SUB50.goals));
   db.workouts=JSON.parse(JSON.stringify(PLAN_SUB50.workouts));
   save();closeModal('modal-settings');showView('goals');
+}
+
+function exportData(){
+  const data = JSON.stringify(db, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `runtrack-sauvegarde-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.goals || !parsed.workouts) throw new Error('Format invalide');
+      if(!confirm(`Restaurer cette sauvegarde ? Tes données actuelles (${db.goals.length} objectif(s), ${db.workouts.length} séance(s)) seront remplacées.`)) return;
+      db.goals = parsed.goals;
+      db.workouts = parsed.workouts;
+      if(parsed.strava) db.strava = {...DEFAULT_STRAVA, ...parsed.strava};
+      save();
+      closeModal('modal-settings');
+      showView('goals');
+      alert('Données restaurées avec succès !');
+    } catch(err) {
+      alert('Fichier invalide. Vérifie que c\'est bien une sauvegarde RunTrack.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
 }
 
 // SW
