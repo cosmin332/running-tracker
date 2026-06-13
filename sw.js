@@ -1,4 +1,4 @@
-const CACHE = 'runtrack-v4';
+const CACHE = 'runtrack-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
